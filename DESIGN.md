@@ -154,7 +154,13 @@ First-person view was chosen for immersion: the driver sees what they will reall
 
 ### 5.4 Camera view (Camera setup card)
 
-Shown as **one merged amber view box** on the road ahead: a filled translucent rectangle with an amber border, and four edge lines running back to the two cameras (two from each). Earlier versions were rejected: downward triangles (looked like cameras pointing down), a flat viewfinder frame, two separate trapezoids, two separate 3D boxes (too many lines on a small screen).
+Each camera has **its own view region** (two cameras, two regions that overlap in the middle). A region is a translucent amber rectangle on the road ahead with four thin edge lines running back to its camera.
+
+- Lines are thin (1.4–1.6) so the picture stays light on a small screen.
+- **Any part of a line that passes over a filled view region is drawn as a clear dashed line** (darker amber `AM2`, width 2.2, dash `6 4`). Parts outside the regions are solid.
+- The two regions share one solid outer border; the inner side edges, which sit inside the other camera's region, are dashed.
+
+Earlier versions were rejected: downward triangles (looked like cameras pointing down), a flat viewfinder frame, two solid trapezoids, and **one merged region for both cameras** (it hides that each camera records its own view).
 
 ---
 
