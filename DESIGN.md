@@ -228,10 +228,13 @@ Do not reorder them, reword them, or add a fifth without the owner's decision.
 - Lanes: use the left lane or the second lane. Use the far right lane only to turn right. Overtake slow vehicles. Do not jump the queue at red lights.
 - Clean the windscreen before starting.
 - Odometer photo at the start and end.
+- A break during a session is allowed at any time, 10 minutes at most (9.3).
 
-### 9.3 Open item — do not add yet
+### 9.3 Breaks during a session
 
-- **"15-minute break after every 2 hours of driving"** is in the company method document, but the owner has **not confirmed** it for this guide. Leave it out until the owner says so.
+- Confirmed by the manager (Nov 2026): **a driver may take a break at any time during a session, but only up to 10 minutes.** It is on the "Stay on your route" card.
+- This **replaces** the "15-minute break after every 2 hours" line in the company method document. Do not add the 15-minute rule.
+- Not decided: whether the cameras stay on during a break. The page says nothing about it; do not invent a rule.
 
 ---
 
