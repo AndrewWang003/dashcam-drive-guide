@@ -154,13 +154,16 @@ First-person view was chosen for immersion: the driver sees what they will reall
 
 ### 5.4 Camera view (Camera setup card)
 
-Each camera has **its own view region** (two cameras, two regions that overlap in the middle). A region is a translucent amber rectangle on the road ahead with four thin edge lines running back to its camera.
+Each camera has **its own view region** (two cameras, two regions that overlap in the middle). A region is a pyramid: the camera is the tip, and a translucent amber rectangle on the road ahead is the far end.
 
-- Lines are thin (1.4–1.6) so the picture stays light on a small screen.
-- **Any part of a line that passes over a filled view region is drawn as a clear dashed line** (darker amber `AM2`, width 2.2, dash `6 4`). Parts outside the regions are solid.
-- The two regions share one solid outer border; the inner side edges, which sit inside the other camera's region, are dashed.
+Solid and dashed lines follow the **hidden-line convention of technical drawing**: an edge the viewer can see is solid; an edge hidden behind a surface is dashed. The viewer sits in the driver's seat, so the cameras are near and the rectangles are far.
 
-Earlier versions were rejected: downward triangles (looked like cameras pointing down), a flat viewfinder frame, two solid trapezoids, and **one merged region for both cameras** (it hides that each camera records its own view).
+- **Solid, thin (1.5):** the four edges from each camera to the corners of its rectangle. They are on the near side, so nothing hides them.
+- **Solid (1.8):** the left, right and bottom outline of the two rectangles together.
+- **Dashed (darker amber `AM2`, width 2, dash `6 4`):** the far top edge of the rectangles (behind the view volume), and the two inner side edges (each sits behind the other camera's view volume).
+- Never dash a line just because it crosses a coloured area on the flat picture. Ask whether it is in front of or behind that surface.
+
+Earlier versions were rejected: downward triangles (looked like cameras pointing down), a flat viewfinder frame, two solid trapezoids, **one merged region for both cameras** (it hides that each camera records its own view), and dashing the near edges where they cross the rectangle (wrong way round).
 
 ---
 
