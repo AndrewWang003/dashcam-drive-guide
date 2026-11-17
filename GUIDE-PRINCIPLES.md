@@ -176,10 +176,14 @@ The space a picture needs is kept **before** it loads, so text never jumps when 
   - **Buttons (Next, Previous, a step chip) open the new page at its top.**
   - Pages where a swipe could skip something the reader must do (a quiz question, a required choice) do not swipe
     that way.
-  - **Swipe hint, touch screens only:** the first time a swipeable page (a card or a step) opens in a visit, a hand
+  - **Swipe hint, touch screens only:** the first time a swipeable page (a card or a step) opens in a visit, a thumb
     drags the page sideways with the caption "Swipe to change …", the neighbour page comes in beside it, and the
-    page springs back. Once per visit. Any touch stops it. It never runs at the same time as another hint or demo.
-    Computers get no page swipe hint (a guide with a scrolling step strip still shows its strip hint).
+    page springs back. A thumb, because most people swipe with the thumb, and so it is not mistaken for the index
+    finger of a click demo. Once per visit. Any touch stops it and hides it at once; a swipe that starts during the
+    hint still changes the page (it may land on the neighbour page, so swipes are caught on the wrapper of both).
+    It never runs at the same time as another hint or demo.
+  - **On a computer, the only hint is the strip hint** (where a guide has a step strip that scrolls). Touch screens
+    never get the strip hint.
 - **One backward control.** A second "back" that goes somewhere different confuses readers.
 - Left and right arrow keys change page on a computer.
 

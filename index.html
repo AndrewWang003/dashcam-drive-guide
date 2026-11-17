@@ -45,8 +45,8 @@ body{background:var(--bg);color:var(--ink);font-family:var(--f-body);font-size:1
 /* page swipe hint (touch screens, first card of a visit): a hand drags the page sideways and it springs back */
 .phint{position:fixed;left:0;top:0;width:0;height:0;z-index:6;pointer-events:none;opacity:0;transition:opacity .25s}
 .phint.on{opacity:1}
-.phint .phand{position:absolute;left:-13px;top:-3px;width:40px;height:50px}
-.phint .phand svg{width:100%;height:100%;display:block;overflow:visible;transition:transform .18s;transform-origin:32% 5%}
+.phint .phand{position:absolute;left:-16px;top:-1px;width:48px;height:60px;-webkit-mask-image:linear-gradient(#000 70%,transparent);mask-image:linear-gradient(#000 70%,transparent)}
+.phint .phand svg{width:100%;height:100%;display:block;overflow:visible;transition:transform .18s;transform-origin:33% 2%}
 .phint.press .phand svg{transform:scale(.85)}
 .phint .co{fill:var(--brand-ink)} .phint .cf{fill:var(--amber)} .phint .cl{fill:var(--brand-ink);opacity:.45}
 .phint .phcap{position:absolute;left:0;top:-54px;transform:translateX(-50%);white-space:nowrap;background:var(--brand);color:var(--brand-ink);
@@ -555,11 +555,11 @@ function swEnd(done){
     setTimeout(()=>{finish();if(step===s.from){const y=window.scrollY;step=s.to;render(true,true);window.scrollTo(0,y);}},230);   // a button may have changed the page meanwhile
   }else{swMove(0,true);sw=null;setTimeout(finish,230);}
 }
-view.addEventListener('touchstart',e=>{
+document.getElementById('pager').addEventListener('touchstart',e=>{
   if(sw&&sw.drag)return;
   sw=(step<=N_&&e.touches.length===1)?{x:e.touches[0].clientX,y:e.touches[0].clientY,lx:e.touches[0].clientX,lt:Date.now(),v:0,drag:false,dir:0,to:null,from:step}:null;
 },{passive:true});
-view.addEventListener('touchmove',e=>{
+document.getElementById('pager').addEventListener('touchmove',e=>{
   if(!sw||e.touches.length!==1)return;
   const p=e.touches[0],dx=p.clientX-sw.x,dy=p.clientY-sw.y,now=Date.now();
   if(!sw.drag){                          // decide once: sideways swipe, or normal up / down scroll
@@ -572,22 +572,22 @@ view.addEventListener('touchmove',e=>{
   swMove(sw.to!==null?dx:dx*.25,false);  // no page that way: the page resists
   sw.dx=dx;
 },{passive:true});
-view.addEventListener('touchend',()=>{
+document.getElementById('pager').addEventListener('touchend',()=>{
   if(!sw||!sw.drag){sw=null;return;}
   const dx=sw.dx||0,far=Math.abs(dx)>view.offsetWidth*.3,flick=Math.abs(sw.v)>.45&&Math.abs(dx)>30&&(sw.v<0)===(dx<0);
   swEnd(far||flick);
 },{passive:true});
-view.addEventListener('touchcancel',()=>swEnd(false),{passive:true});
+document.getElementById('pager').addEventListener('touchcancel',()=>swEnd(false),{passive:true});
 
 /* ---------- page swipe hint: touch screens only, the first card opened in a visit.
    A hand drags the page sideways, the next card comes in beside it, then the page springs back. Any touch stops it. ---------- */
 const TOUCH=matchMedia('(pointer: coarse)').matches;
 let pageHintDone=false,phT=0,phRaf=0;
 const PH=document.createElement('div');PH.className='phint';PH.setAttribute('aria-hidden','true');
-PH.innerHTML='<span class="phcap">Swipe to change card</span><span class="phand"><svg viewBox="0 0 44 54"><g class="co"><rect x="6" y="0" width="16" height="34" rx="8"/><rect x="19" y="13" width="12" height="20" rx="6"/><rect x="26" y="15" width="12" height="20" rx="6"/><rect x="32" y="18" width="12" height="20" rx="6"/><rect x="6" y="22" width="38" height="32" rx="12"/><rect x="0" y="24" width="13" height="22" rx="6.5"/></g><g class="cf"><rect x="8" y="2" width="12" height="30" rx="6"/><rect x="21" y="15" width="8" height="16" rx="4"/><rect x="28" y="17" width="8" height="16" rx="4"/><rect x="34" y="20" width="8" height="16" rx="4"/><rect x="8" y="24" width="34" height="28" rx="10"/><rect x="2" y="26" width="9" height="18" rx="4.5"/></g><g class="cl"><rect x="20.2" y="18" width="1.6" height="13" rx=".8"/><rect x="27.2" y="20" width="1.6" height="12" rx=".8"/><rect x="33.2" y="23" width="1.6" height="11" rx=".8"/></g></svg></span>';
+PH.innerHTML='<span class="phcap">Swipe to change card</span><span class="phand"><svg viewBox="0 0 46 58"><g class="co"><rect x="4" y="0" width="22" height="42" rx="11"/><path d="M12 30 Q30 22 44 32 L46 58 L8 58 Z"/></g><g class="cf"><rect x="6" y="2" width="18" height="38" rx="9"/><path d="M14 32 Q30 25 42 34 L44 58 L10 58 Z"/></g><g class="cl"><rect x="10" y="5" width="10" height="10" rx="4.5" opacity=".6"/><rect x="11" y="30" width="10" height="1.6" rx=".8"/></g></svg></span>';
 document.body.appendChild(PH);
 function stopPageHint(){
-  clearTimeout(phT);cancelAnimationFrame(phRaf);phT=phRaf=0;PH.classList.remove('on','press');
+  clearTimeout(phT);cancelAnimationFrame(phRaf);phT=phRaf=0;PH.classList.remove('on','press');PH.style.opacity='';
   if(sw&&sw.hint){sw=null;view.style.transition=peek.style.transition='none';view.style.transform='';peek.hidden=true;peek.innerHTML='';peek.style.transform='';}
 }
 function pageHint(){
