@@ -19,6 +19,6 @@ It is a single self-contained HTML file. It loads fonts from Google Fonts and no
 
 ## Update
 
-**Read [`DESIGN.md`](DESIGN.md) first.** It holds the design rules for this page: purpose, wording, illustration style, palette and colour meanings, viewpoints and proportions, hardware facts, motion, theme, interaction, and a checklist. It is written so that an AI assistant or a new editor can keep the page consistent.
+**Read [`GUIDE-PRINCIPLES.md`](GUIDE-PRINCIPLES.md) and [`DESIGN.md`](DESIGN.md) first.** `GUIDE-PRINCIPLES.md` holds the rules shared by every Matrix guide (the same file is in each guide repository); `DESIGN.md` holds the rules for this page only. AI agents also read [`AGENTS.md`](AGENTS.md). It holds the design rules for this page: purpose, wording, illustration style, palette and colour meanings, viewpoints and proportions, hardware facts, motion, theme, interaction, and a checklist. It is written so that an AI assistant or a new editor can keep the page consistent.
 
 Then edit `index.html` and push to `main`. The card text is in the `CARDS` array, the quiz is in the `QUIZ` array, and the pictures are the `S` (cards) and `QS` (quiz) functions inside the script.

@@ -1,5 +1,7 @@
 # DESIGN.md — design rules for the Dash Cam Drive Guide
 
+**Read [`GUIDE-PRINCIPLES.md`](GUIDE-PRINCIPLES.md) first.** It holds the rules shared by every Matrix guide (the same file is in each guide repository). This file holds what is special about the Dash Cam Drive Guide and never contradicts it. **Guide type: training guide** (GUIDE-PRINCIPLES.md section 2).
+
 **Read this whole file before you change `index.html`.** It is written for AI assistants and human editors. It records every design decision that shapes how the page looks, moves, reads and behaves, and why. Most rules exist because the owner tested an alternative and rejected it; those are marked **(rejected)**. Do not bring a rejected idea back without asking the owner.
 
 If a rule here conflicts with a new instruction from the owner, the owner wins. Then update this file in the same commit.
@@ -29,7 +31,7 @@ If a rule here conflicts with a new instruction from the owner, the owner wins. 
 - **Never add job-specific details**: no dates, clock times, route names, place names, phone numbers, company staff names.
 - Do not restate ordinary road rules (for example "no phone while driving" as a law). The guide covers survey rules. Australian road rules are assumed; the car is **right-hand drive** and traffic keeps **left**.
 - Be honest about what the page does. The completion card says the page does not send anything by itself. Keep that.
-- Each card: a title, one lead sentence, and **at most 3 bullets**. Each bullet starts with a bold keyword phrase, then a short explanation.
+- Each card: a title, a lead sentence only if it says something the title and bullets do not (shared rule: highest information density), and **at most 3 bullets** (training guide). Each bullet starts with a bold keyword phrase, then a short explanation.
 - Check every new sentence for double meanings. Known traps: "the whole time" (say "the whole session"); "each part" (say what part).
 
 ---
