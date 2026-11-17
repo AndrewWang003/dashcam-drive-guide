@@ -247,6 +247,8 @@ Do not reorder them, reword them, or add a fifth without the owner's decision.
   - It changes page after 30% of the width, or after a quick flick. A shorter swipe springs back.
   - Up / down scrolling is never taken over: a gesture counts as a swipe only when it is clearly sideways.
   - Where there is no page that way (right on the start page, left on the last card) the page resists and springs back. **The last card does not swipe into the quiz**: starting the quiz is a deliberate tap on the button.
+  - **After a swipe the reader stays at the same scroll height** (owner's request), so reading continues where the eyes already are. The neighbour page is drawn at the same height during the swipe, so nothing jumps when it ends. If the new page is shorter than the current scroll position, the browser moves up to the end of that page; that is expected.
+  - **Next / Back buttons still go to the top of the new page.** The Next button sits at the bottom of a card, so keeping the height there would open the next card at its end.
   - **No swipe in the quiz, the name page or the finish page.** A sideways swipe there must do nothing, so an answer can never be skipped by accident.
   - Code: `cardHTML(n)` / `startHTML()` build a page as a string so the neighbour can be drawn in `#peek`; `renderCard()` then binds the buttons on the real page. Keep that split when adding interactive cards.
 - **Quiz:** tap an answer to select it, then tap **Check answer**. This two-step design prevents accidental taps. Feedback shows right/wrong with a one-line reason. Wrong questions **come back at the end** until all are right. **Reset** sits top-right of the quiz and turns coral after a wrong answer. **Back** goes to the previous question, it does not restart the quiz.

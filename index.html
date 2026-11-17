@@ -507,10 +507,10 @@ function renderDone(){
   document.getElementById('who').textContent=name;
 }
 let shown=-1;
-function render(quiet){
+function render(quiet,keep){   // keep = stay at the same scroll height (after a swipe)
   const was=shown; shown=step; view.classList.remove('inR','inL');
   if(step===0)renderStart();else if(step<=N_)renderCard();else if(step===N_+1)renderQuiz();else if(step===N_+2)renderName();else renderDone();
-  window.scrollTo({top:0});
+  if(!keep)window.scrollTo({top:0});
   // slide in from the side the page came from. Start page and cards only: the quiz stays still.
   if(!quiet&&was>=0&&was!==step&&was<=N_&&step<=N_){void view.offsetWidth;view.classList.add(step>was?'inR':'inL');}
 }
@@ -532,8 +532,7 @@ function swPeek(dir){                    // dir -1 = finger moves left = next pa
   sw.dir=dir;sw.to=to;
   if(to===null){peek.hidden=true;peek.innerHTML='';return;}
   peek.innerHTML=pageHTML(to);peek.hidden=false;
-  // line the new page up with the top of the visible area when the reader has scrolled down
-  peek.style.top=Math.max(0,-pager.getBoundingClientRect().top+14)+'px';
+  // The neighbour sits at the same height as the current page, so nothing jumps when the swipe ends.
 }
 function swEnd(done){
   const s=sw;sw=null;
@@ -542,7 +541,7 @@ function swEnd(done){
   sw=s;                                  // swMove reads sw.dir
   if(done&&s.to!==null){
     swMove((s.dir<0?-1:1)*(view.offsetWidth+PGAP),true);sw=null;
-    setTimeout(()=>{finish();if(step===s.from){step=s.to;render(true);}},230);   // a button may have changed the page meanwhile
+    setTimeout(()=>{finish();if(step===s.from){const y=window.scrollY;step=s.to;render(true,true);window.scrollTo(0,y);}},230);   // a button may have changed the page meanwhile
   }else{swMove(0,true);sw=null;setTimeout(finish,230);}
 }
 view.addEventListener('touchstart',e=>{
