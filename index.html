@@ -43,10 +43,11 @@ body{background:var(--bg);color:var(--ink);font-family:var(--f-body);font-size:1
 #view{touch-action:pan-y pinch-zoom}
 .peek{position:absolute;left:0;top:0;width:100%;pointer-events:none}
 /* page swipe hint (touch screens, first card of a visit): a hand drags the page sideways and it springs back */
+.phint .cn{fill:var(--brand-ink);opacity:.16}
 .phint{position:fixed;left:0;top:0;width:0;height:0;z-index:6;pointer-events:none;opacity:0;transition:opacity .25s}
 .phint.on{opacity:1}
-.phint .phand{position:absolute;left:-16px;top:-1px;width:48px;height:60px;-webkit-mask-image:linear-gradient(#000 70%,transparent);mask-image:linear-gradient(#000 70%,transparent)}
-.phint .phand svg{width:100%;height:100%;display:block;overflow:visible;transition:transform .18s;transform-origin:33% 2%}
+.phint .phand{position:absolute;left:-22px;top:-6px;width:58px;height:64px;-webkit-mask-image:linear-gradient(#000 70%,transparent);mask-image:linear-gradient(#000 70%,transparent)}
+.phint .phand svg{width:100%;height:100%;display:block;overflow:visible;transition:transform .18s;transform-origin:38% 10%}
 .phint.press .phand svg{transform:scale(.85)}
 .phint .co{fill:var(--brand-ink)} .phint .cf{fill:var(--amber)} .phint .cl{fill:var(--brand-ink);opacity:.45}
 .phint .phcap{position:absolute;left:0;top:-54px;transform:translateX(-50%);white-space:nowrap;background:var(--brand);color:var(--brand-ink);
@@ -584,7 +585,7 @@ document.getElementById('pager').addEventListener('touchcancel',()=>swEnd(false)
 const TOUCH=matchMedia('(pointer: coarse)').matches;
 let pageHintDone=false,phT=0,phRaf=0;
 const PH=document.createElement('div');PH.className='phint';PH.setAttribute('aria-hidden','true');
-PH.innerHTML='<span class="phcap">Swipe to change card</span><span class="phand"><svg viewBox="0 0 46 58"><g class="co"><rect x="4" y="0" width="22" height="42" rx="11"/><path d="M12 30 Q30 22 44 32 L46 58 L8 58 Z"/></g><g class="cf"><rect x="6" y="2" width="18" height="38" rx="9"/><path d="M14 32 Q30 25 42 34 L44 58 L10 58 Z"/></g><g class="cl"><rect x="10" y="5" width="10" height="10" rx="4.5" opacity=".6"/><rect x="11" y="30" width="10" height="1.6" rx=".8"/></g></svg></span>';
+PH.innerHTML='<span class="phcap">Swipe to change card</span><span class="phand"><svg viewBox="-22 -4 58 64"><g transform="rotate(-16 16 58)"><path class="co" d="M16 0 C25 0 30 7 30 16 L30.5 32 C31 38 30 46 29 60 L5 60 C3.5 46 2 38 2.4 32 L2 16 C2 7 7 0 16 0Z"/><path class="cf" d="M16 2.2 C23.6 2.2 27.8 8 27.8 16 L28.3 32 C28.7 38 27.8 46 26.8 60 L7.2 60 C6 46 4.4 38 4.6 32 L4.2 16 C4.2 8 8.4 2.2 16 2.2Z"/><path class="cn" d="M16 5.5 C21.5 5.5 23.6 9 23.6 13.5 L23.4 19 C23.3 21 21.6 22.2 19.6 22.2 L12.4 22.2 C10.4 22.2 8.7 21 8.6 19 L8.4 13.5 C8.4 9 10.5 5.5 16 5.5Z"/><path class="cl" d="M9 34.2 Q16 31.6 23.6 34.2 L23.6 35.8 Q16 33.4 9 35.8Z"/></g></svg></span>';
 document.body.appendChild(PH);
 function stopPageHint(){
   clearTimeout(phT);cancelAnimationFrame(phRaf);phT=phRaf=0;PH.classList.remove('on','press');PH.style.opacity='';

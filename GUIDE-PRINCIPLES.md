@@ -176,8 +176,8 @@ The space a picture needs is kept **before** it loads, so text never jumps when 
   - **Buttons (Next, Previous, a step chip) open the new page at its top.**
   - Pages where a swipe could skip something the reader must do (a quiz question, a required choice) do not swipe
     that way, unless the swipe takes the safe choice (one that skips nothing).
-  - **Swipe hint, touch screens only:** the first time a swipeable page (a card or a step) opens in a visit, a thumb
-    drags the page sideways with the caption "Swipe to change …", the neighbour page comes in beside it, and the
+  - **Swipe hint, touch screens only:** the first time a swipeable page (a card or a step) opens in a visit, a thumb (the
+    thumb on its own, no hand) drags the page sideways with the caption "Swipe to change …", the neighbour page comes in beside it, and the
     page springs back. A thumb, because most people swipe with the thumb, and so it is not mistaken for the index
     finger of a click demo. Once per visit. Any touch stops it and hides it at once; a swipe that starts during the
     hint still changes the page (it may land on the neighbour page, so swipes are caught on the wrapper of both).
