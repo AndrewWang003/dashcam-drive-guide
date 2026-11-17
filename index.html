@@ -524,7 +524,7 @@ function render(quiet,keep){   // keep = stay at the same scroll height (after a
   // slide in from the side the page came from. Start page and cards only: the quiz stays still.
   if(!quiet&&was>=0&&was!==step&&was<=N_&&step<=N_){void view.offsetWidth;view.classList.add(step>was?'inR':'inL');}
   stopPageHint();
-  if(TOUCH&&!pageHintDone&&step>=1&&step<=N_)pageHint();
+  if(TOUCH&&!pageHintDone&&step<=N_)pageHint();   // start page or a card, whichever opens first
 }
 
 /* ---------- swipe the page left / right to change card (touch only; up / down still scrolls).
@@ -580,7 +580,7 @@ document.getElementById('pager').addEventListener('touchend',()=>{
 },{passive:true});
 document.getElementById('pager').addEventListener('touchcancel',()=>swEnd(false),{passive:true});
 
-/* ---------- page swipe hint: touch screens only, the first card opened in a visit.
+/* ---------- page swipe hint: touch screens only, the first swipeable page opened in a visit (normally the start page).
    A hand drags the page sideways, the next card comes in beside it, then the page springs back. Any touch stops it. ---------- */
 const TOUCH=matchMedia('(pointer: coarse)').matches;
 let pageHintDone=false,phT=0,phRaf=0;

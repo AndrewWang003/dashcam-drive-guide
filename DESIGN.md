@@ -279,7 +279,7 @@ Do not reorder them, reword them, or add a fifth without the owner's decision.
   - It changes page after 30% of the width, or after a quick flick. A shorter swipe springs back.
   - Up / down scrolling is never taken over: a gesture counts as a swipe only when it is clearly sideways.
   - Where there is no page that way (right on the start page, left on the last card) the page resists and springs back. **The last card does not swipe into the quiz**: starting the quiz is a deliberate tap on the button.
-  - **Swipe hint (touch screens only):** the first card opened in a visit shows a hand that drags the page sideways with the caption "Swipe to change card", then the page springs back. Once per visit; any touch stops it; not on computers (shared rule).
+  - **Swipe hint (touch screens only):** the first swipeable page opened in a visit — normally the **start page**, with card 1 coming in beside it — shows a thumb that drags the page sideways with the caption "Swipe to change card", then the page springs back. Once per visit; any touch stops it; not on computers (shared rule).
   - **After a swipe the reader stays at the same scroll height** (owner's request), so reading continues where the eyes already are. The neighbour page is drawn at the same height during the swipe, so nothing jumps when it ends. If the new page is shorter than the current scroll position, the browser moves up to the end of that page; that is expected.
   - **Next / Back buttons still go to the top of the new page.** The Next button sits at the bottom of a card, so keeping the height there would open the next card at its end.
   - **No swipe in the quiz, the name page or the finish page.** A sideways swipe there must do nothing, so an answer can never be skipped by accident.
