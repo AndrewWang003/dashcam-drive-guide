@@ -42,6 +42,15 @@ body{background:var(--bg);color:var(--ink);font-family:var(--f-body);font-size:1
 @supports (overflow:clip){.pager{overflow:visible;overflow-x:clip}}
 #view{touch-action:pan-y pinch-zoom}
 .peek{position:absolute;left:0;top:0;width:100%;pointer-events:none}
+/* page swipe hint (touch screens, first card of a visit): a hand drags the page sideways and it springs back */
+.phint{position:fixed;left:0;top:0;width:0;height:0;z-index:6;pointer-events:none;opacity:0;transition:opacity .25s}
+.phint.on{opacity:1}
+.phint .phand{position:absolute;left:-13px;top:-3px;width:40px;height:50px}
+.phint .phand svg{width:100%;height:100%;display:block;overflow:visible;transition:transform .18s;transform-origin:32% 5%}
+.phint.press .phand svg{transform:scale(.85)}
+.phint .co{fill:var(--brand-ink)} .phint .cf{fill:var(--amber)} .phint .cl{fill:var(--brand-ink);opacity:.45}
+.phint .phcap{position:absolute;left:0;top:-54px;transform:translateX(-50%);white-space:nowrap;background:var(--brand);color:var(--brand-ink);
+  border-radius:999px;padding:8px 14px 6px;font-family:var(--f-display);font-weight:800;font-size:15px}
 /* Next / Back buttons: the new page slides in from the side it came from */
 #view.inR{animation:inR .22s ease-out}
 #view.inL{animation:inL .22s ease-out}
@@ -513,6 +522,8 @@ function render(quiet,keep){   // keep = stay at the same scroll height (after a
   if(!keep)window.scrollTo({top:0});
   // slide in from the side the page came from. Start page and cards only: the quiz stays still.
   if(!quiet&&was>=0&&was!==step&&was<=N_&&step<=N_){void view.offsetWidth;view.classList.add(step>was?'inR':'inL');}
+  stopPageHint();
+  if(TOUCH&&!pageHintDone&&step>=1&&step<=N_)pageHint();
 }
 
 /* ---------- swipe the page left / right to change card (touch only; up / down still scrolls).
@@ -567,6 +578,43 @@ view.addEventListener('touchend',()=>{
   swEnd(far||flick);
 },{passive:true});
 view.addEventListener('touchcancel',()=>swEnd(false),{passive:true});
+
+/* ---------- page swipe hint: touch screens only, the first card opened in a visit.
+   A hand drags the page sideways, the next card comes in beside it, then the page springs back. Any touch stops it. ---------- */
+const TOUCH=matchMedia('(pointer: coarse)').matches;
+let pageHintDone=false,phT=0,phRaf=0;
+const PH=document.createElement('div');PH.className='phint';PH.setAttribute('aria-hidden','true');
+PH.innerHTML='<span class="phcap">Swipe to change card</span><span class="phand"><svg viewBox="0 0 44 54"><g class="co"><rect x="6" y="0" width="16" height="34" rx="8"/><rect x="19" y="13" width="12" height="20" rx="6"/><rect x="26" y="15" width="12" height="20" rx="6"/><rect x="32" y="18" width="12" height="20" rx="6"/><rect x="6" y="22" width="38" height="32" rx="12"/><rect x="0" y="24" width="13" height="22" rx="6.5"/></g><g class="cf"><rect x="8" y="2" width="12" height="30" rx="6"/><rect x="21" y="15" width="8" height="16" rx="4"/><rect x="28" y="17" width="8" height="16" rx="4"/><rect x="34" y="20" width="8" height="16" rx="4"/><rect x="8" y="24" width="34" height="28" rx="10"/><rect x="2" y="26" width="9" height="18" rx="4.5"/></g><g class="cl"><rect x="20.2" y="18" width="1.6" height="13" rx=".8"/><rect x="27.2" y="20" width="1.6" height="12" rx=".8"/><rect x="33.2" y="23" width="1.6" height="11" rx=".8"/></g></svg></span>';
+document.body.appendChild(PH);
+function stopPageHint(){
+  clearTimeout(phT);cancelAnimationFrame(phRaf);phT=phRaf=0;PH.classList.remove('on','press');
+  if(sw&&sw.hint){sw=null;view.style.transition=peek.style.transition='none';view.style.transform='';peek.hidden=true;peek.innerHTML='';peek.style.transform='';}
+}
+function pageHint(){
+  pageHintDone=true;
+  phT=setTimeout(()=>{
+    phT=0;
+    const dir=step<N_?-1:1;
+    sw={drag:true,hint:true,dir:0,to:null,from:step};swPeek(dir);if(sw.to===null){stopPageHint();return;}
+    const W=view.offsetWidth,D=dir*Math.min(W*.42,170),x0=innerWidth*(dir<0?.7:.3),y=innerHeight*.58;
+    const ease=t=>t<.5?2*t*t:1-Math.pow(-2*t+2,2)/2, seg=(p,a,b)=>p<=a?0:p>=b?1:ease((p-a)/(b-a));
+    const DUR=2800;let t0=0;
+    PH.classList.add('on');
+    const frame=now=>{
+      if(!t0)t0=now;
+      const p=(now-t0)/DUR;
+      if(p>=1){stopPageHint();return;}
+      const dx=D*(seg(p,.2,.6)-seg(p,.72,.92));                     // drag, hold, spring back
+      PH.classList.toggle('press',p>.14&&p<.7);
+      PH.style.opacity=p<.1?p/.1:p>.9?(1-p)/.1:1;
+      PH.style.transform=`translate(${x0+dx}px,${y}px)`;
+      swMove(dx,false);
+      phRaf=requestAnimationFrame(frame);
+    };
+    phRaf=requestAnimationFrame(frame);
+  },700);
+}
+window.addEventListener('touchstart',()=>{if(phT||phRaf)stopPageHint();},{capture:true,passive:true});
 
 render();
 })();

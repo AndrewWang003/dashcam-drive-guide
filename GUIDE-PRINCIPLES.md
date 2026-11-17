@@ -176,6 +176,10 @@ The space a picture needs is kept **before** it loads, so text never jumps when 
   - **Buttons (Next, Previous, a step chip) open the new page at its top.**
   - Pages where a swipe could skip something the reader must do (a quiz question, a required choice) do not swipe
     that way.
+  - **Swipe hint, touch screens only:** the first time a swipeable page (a card or a step) opens in a visit, a hand
+    drags the page sideways with the caption "Swipe to change …", the neighbour page comes in beside it, and the
+    page springs back. Once per visit. Any touch stops it. It never runs at the same time as another hint or demo.
+    Computers get no page swipe hint (a guide with a scrolling step strip still shows its strip hint).
 - **One backward control.** A second "back" that goes somewhere different confuses readers.
 - Left and right arrow keys change page on a computer.
 
@@ -215,6 +219,7 @@ The repositories are public.
 - [ ] With slow pictures, nothing on the page moves when they arrive.
 - [ ] Every animation still teaches, and starts only when its picture is ready.
 - [ ] Swipe: long swipe changes page at the same height, short swipe springs back, vertical drag only scrolls.
+- [ ] Touch screen: the swipe hint plays once, on the first swipeable page; not on a computer.
 - [ ] Walk the whole flow from the start page to the end, with no console errors.
 - [ ] No browser storage, no network calls besides fonts.
 - [ ] `DESIGN.md`, `README.md` and this file still describe the page.
