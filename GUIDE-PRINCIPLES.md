@@ -147,9 +147,10 @@ The space a picture needs is kept **before** it loads, so text never jumps when 
 
 - Drawn inline (SVG in the page): nothing to wait for.
 - Image files: the page knows each picture's pixel size in advance, sets it on the image, and draws a placeholder
-  in that exact space until the picture has downloaded. The placeholder is a small drawing on the `--tint` colour
-  with the words "Loading picture". It disappears when the picture is ready. A picture that fails to load keeps
-  its placeholder.
+  in that exact space until the picture has downloaded. The placeholder is a skeleton of a screen: a few rounded
+  bars on the `--tint` colour that keep growing and shrinking one after another, with a light sweeping across, so
+  the reader sees that something is loading. It disappears when the picture is ready. A picture that fails to load
+  keeps its placeholder.
 - Marks drawn on a picture appear only when the picture is ready.
 
 ## 5. Motion
