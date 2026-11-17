@@ -100,7 +100,7 @@ Page tokens (CSS variables on `:root`):
 | `--ink` | `#141B3C` | `#F3EBDD` |
 | `--muted` | `#5B6078` | `#A9AEC6` |
 | `--line` | `#E2D9C8` | `#2B3359` |
-| `--brand` / `--brand-ink` | `#141B3C` / `#FFFDF8` | `#F2A93B` / `#141B3C` |
+| `--brand` / `--brand-ink` | `#F2A93B` / `#141B3C` | `#F2A93B` / `#141B3C` |
 | `--amber` | `#F2A93B` | `#F2A93B` |
 | `--coral` | `#D94A22` | `#FF7A52` |
 | `--sage` | `#5E8F88` | `#7DB3AB` |
@@ -112,7 +112,7 @@ Do not add colours. If something needs to stand out, use the meaning table below
 | Colour | Means | Examples |
 |---|---|---|
 | **Coral** | Stop, don't, look here | REC dot, prohibition signs, wrong answer, gauge needles |
-| **Amber** | Do this, movement, progress | Lane lines, plugs and adapter, progress fill, camera view box, primary button in dark mode |
+| **Amber** | Do this, movement, progress | Lane lines, plugs and adapter, progress fill, camera view box, all main buttons |
 | **Sage** | Correct, done | Check badges, OK, right answer |
 | **Navy** | Brand, structure, neutral objects | Cameras, cabin, road |
 
@@ -123,6 +123,7 @@ Do not add colours. If something needs to stand out, use the meaning table below
 ### 4.3 Text inside pictures
 
 Keep it to short labels only: `REC`, `12V`, `A`, `B`, `000`, `OK`, `TIME'S UP`, odometer digits, numbers. All explanation goes in the HTML text below the picture. Text must never overflow its shape.
+- **Main buttons are amber with navy text in both themes** (`--brand`): Next / Start / Check answer, the Power on and Between sessions step button, the selected A / B button. A navy button was tried in daylight mode and felt too heavy on a phone and out of place in a light theme **(rejected)**. Secondary buttons (Back, theme, Reset) stay outlined on the surface colour.
 
 ---
 
