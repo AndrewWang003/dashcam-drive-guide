@@ -175,7 +175,7 @@ The space a picture needs is kept **before** it loads, so text never jumps when 
     The neighbour page is drawn at that height during the swipe.
   - **Buttons (Next, Previous, a step chip) open the new page at its top.**
   - Pages where a swipe could skip something the reader must do (a quiz question, a required choice) do not swipe
-    that way.
+    that way, unless the swipe takes the safe choice (one that skips nothing).
   - **Swipe hint, touch screens only:** the first time a swipeable page (a card or a step) opens in a visit, a thumb
     drags the page sideways with the caption "Swipe to change …", the neighbour page comes in beside it, and the
     page springs back. A thumb, because most people swipe with the thumb, and so it is not mistaken for the index
