@@ -55,6 +55,7 @@ Rules:
 
 - One card on screen at a time. One narrow column. Must work at 320 px width with no sideways scrolling.
 - Order cards in the order the driver does things during the day.
+- **Changing page:** on the start page and the cards, the reader can tap the buttons or **swipe left / right**. The quiz, the name page and the finish page do not swipe (section 10).
 - **No second progress indicator.** A vertical trail down the left side was tried and removed **(rejected)**.
 - Keep the total reading time under about 10 minutes. If you add cards, update the "About N minutes" label.
 
@@ -80,7 +81,7 @@ Illustration constants (in the script):
 
 | Name | Hex | Use |
 |---|---|---|
-| `N` navy | `#141B3C` | Brand colour. Car bodies, cameras, cabin frame, structure |
+| `N` navy | `#141B3C` | Brand colour. Cameras, cabin frame, road, structure |
 | `N2` / `N3` / `NK` | `#33407A` / `#232B52` / `#0A0E22` | Navy shades, shadows |
 | `CR` cream / `W` white | `#F3EBDD` / `#FFFDF8` | Light surfaces, text on navy |
 | `AM` amber / `AM2` | `#F2A93B` / `#DB932A` | **Action and progress** |
@@ -113,9 +114,9 @@ Do not add colours. If something needs to stand out, use the meaning table below
 | **Coral** | Stop, don't, look here | REC dot, prohibition signs, wrong answer, gauge needles |
 | **Amber** | Do this, movement, progress | Lane lines, plugs and adapter, progress fill, camera view box, primary button in dark mode |
 | **Sage** | Correct, done | Check badges, OK, right answer |
-| **Navy** | Brand, structure, neutral objects | Survey car, cameras, cabin |
+| **Navy** | Brand, structure, neutral objects | Cameras, cabin, road |
 
-- The survey car is always navy. Other traffic is grey.
+- The **survey car is always coral** (symbol `car`): it is the one thing to watch in every side-view picture. Other traffic is sage or dark blue (`carB`, `carC`).
 - A prohibition is always the **coral circle with a diagonal bar** (`no()` helper). A lock icon was tried and was not understood **(rejected)**.
 - Never use colour alone for right/wrong in the quiz; keep the text feedback too.
 
@@ -190,6 +191,7 @@ Earlier versions were rejected: downward triangles (looked like cameras pointing
 - A car driving to the right: **road dashes move right-to-left**. The car bobs by only 1.3 px.
 - **A stopped car's wheels do not turn.** Use the non-spinning symbols `carS` / `carBS`. (CSS cannot stop an animation inside a `<use>` symbol, so separate symbols exist.)
 - **SD card animation:** the card slides **out** a little, a coral arrow shows the direction, the prohibition sign pops, the card fades and resets. Never animate the card moving **in** — it reads as "insert the card".
+- **Page change (start page and cards only):** with Next / Back the new page slides in 30 px from the side it came from (0.22 s). With a finger swipe the page follows the finger and the neighbour page comes in beside it. **The quiz has no page-change motion**, so the reader's attention stays on the question.
 - No rotating gear. The gear icon is static.
 - No curved detour line jumping over a road barrier **(rejected)**.
 - Use `transform-box` / `transform-origin` carefully for SVG parts. The adapter lead scales from a fixed end so it never shows from under the adapter.
@@ -241,6 +243,12 @@ Do not reorder them, reword them, or add a fifth without the owner's decision.
 ## 10. Interaction
 
 - Touch targets at least 44 px. Buttons have visible focus and pressed states.
+- **Swipe to change page** (touch only): swipe left = next, swipe right = previous. It works on the start page and the 15 cards.
+  - It changes page after 30% of the width, or after a quick flick. A shorter swipe springs back.
+  - Up / down scrolling is never taken over: a gesture counts as a swipe only when it is clearly sideways.
+  - Where there is no page that way (right on the start page, left on the last card) the page resists and springs back. **The last card does not swipe into the quiz**: starting the quiz is a deliberate tap on the button.
+  - **No swipe in the quiz, the name page or the finish page.** A sideways swipe there must do nothing, so an answer can never be skipped by accident.
+  - Code: `cardHTML(n)` / `startHTML()` build a page as a string so the neighbour can be drawn in `#peek`; `renderCard()` then binds the buttons on the real page. Keep that split when adding interactive cards.
 - **Quiz:** tap an answer to select it, then tap **Check answer**. This two-step design prevents accidental taps. Feedback shows right/wrong with a one-line reason. Wrong questions **come back at the end** until all are right. **Reset** sits top-right of the quiz and turns coral after a wrong answer. **Back** goes to the previous question, it does not restart the quiz.
 - **Quiz pictures set the scene and never show the answer.**
 - **Power on** card: two taps (cameras → adapter, then adapter → car). Unplug returns to step 1.
