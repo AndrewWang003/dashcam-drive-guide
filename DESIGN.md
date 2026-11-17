@@ -201,11 +201,40 @@ Earlier versions were rejected: downward triangles (looked like cameras pointing
 
 ## 8. Light and dark theme
 
+### 8.1 Mechanics
+
 - Default follows the device (`prefers-color-scheme`).
 - One round button, top-right, toggles `document.documentElement.dataset.theme`.
 - **The icon shows the mode you will switch to**: a moon in daylight mode, a sun in dark mode. This is the owner's choice.
-- All page colours come from the tokens in 4.1. Dark tokens are defined twice: under `@media (prefers-color-scheme: dark){:root:not([data-theme="light"])}` and under `:root[data-theme="dark"]`. Change both together.
-- Pictures keep the same palette in both themes; in dark mode the picture frame gets a thin border (`--scene-edge`).
+- All page colours come from the tokens in 4.1. Never write a page colour as a hex value in a component; use a token.
+- Dark tokens are defined twice: under `@media (prefers-color-scheme: dark){:root:not([data-theme="light"])}` and under `:root[data-theme="dark"]`. Change both together.
+
+### 8.2 Character of each theme
+
+**Daylight** — warm paper. Light, calm, open.
+- Page `--bg` cream `#F6F1E7`, cards `--surface` off-white `#FFFDF8`, text `--ink` navy `#141B3C`, hairlines `--line` sand `#E2D9C8`.
+- **Navy is for text, icons and the pictures only.** Do not use navy as a large filled area or a thick outline in the page UI (buttons, selected states, banners). It looks heavy on a phone and breaks the light feel **(rejected: navy main buttons, navy outline on the selected quiz answer)**.
+- Highlights are amber; status is sage (right) or coral (wrong / don't).
+
+**Dark** — night drive. Deep navy, low glare.
+- Page `--bg` `#0E1228`, cards `--surface` `#171D3A`, text `--ink` cream `#F3EBDD`, hairlines `--line` `#2B3359`.
+- Coral and sage are lighter here (`#FF7A52`, `#7DB3AB`) so they stay readable on navy.
+- Picture frames get a thin border (`--scene-edge`) so they do not melt into the page.
+
+### 8.3 Rules that are the same in both themes
+
+| Element | Style |
+|---|---|
+| Main button (Start, Next, Check answer, step button, selected A / B) | Amber fill `--brand`, navy text `--brand-ink` |
+| Main button disabled | Same, at 40% opacity |
+| Secondary button (Back, theme, Reset) | `--surface` fill, 1.5 px `--line` outline, `--ink` text |
+| Selected quiz answer (before Check) | Amber outline (2 px + 2 px inset) and a light amber tint `rgba(242,169,59,.16)` |
+| Right answer / done | Sage outline, `--ok-bg` tint |
+| Wrong answer / don't | Coral outline, `--bad-bg` tint |
+| Progress fill, stage chip outline, bullet dashes | Amber |
+| Pictures (SVG) | Same palette in both themes (4.1); they are not recoloured |
+
+When adding a new component: if it is the thing to press or the current choice, make it amber; if it is a status, use sage or coral; everything else stays on `--surface` / `--line`. Then check it in **both** themes before committing.
 
 ---
 
