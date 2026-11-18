@@ -43,10 +43,11 @@ Top bar (always visible):
 - **Back** button, top-left. Goes back exactly one page, also inside the quiz.
 - Title and position text ("Card 3 of 15", "Question 2 of 10").
 - **Theme button**, top-right (section 8).
-- **Route progress bar** with five stages: `BEFORE · ROAD · BREAK · AFTER · QUIZ`, and **one dot per card** on the rail. It is the stage map, the progress indicator and a card picker (section 10, "Card dots").
-  - The amber fill runs to the current card's dot. In the quiz it runs from the last card's dot to the end of the bar, by correct answers. The quiz part has no dots.
-  - Dots: current card = larger amber dot with a navy ring; a card already opened = small amber dot; not opened yet = small hollow dot.
-  - Each stage's width follows its number of cards (the quiz stage counts as two), at least 44 px so its label fits. At 320 px the dots are about 14 px apart.
+- **Route progress bar** with five stages: `BEFORE · ROAD · BREAK · AFTER · QUIZ`, **one dot per card**, and **the quiz as the last dot**. It is the stage map, the progress indicator and a card picker (section 10, "Card dots").
+  - **The line ends at the quiz dot.** Nothing comes after it, so a full line means the whole guide is done. The amber fill runs to the current dot; in the quiz and on the name and finish pages the line is full. The number of correct answers is in the text above the bar ("Quiz · 3 of 10 correct"), not in the line.
+  - **Key dots** are bigger (13 px), with a navy ring when reached: the first card of each stage, and the quiz dot. Each sits under its stage label (the QUIZ label is right-aligned under the quiz dot), so the driver sees which stage they are in. The last card ("Remember these 4") is a small dot just before the quiz dot.
+  - Other dots: the current one = 16 px amber with a navy ring and a soft amber halo; already opened = small amber; not opened yet = small hollow.
+  - Each stage's width follows its number of dots (the quiz stage counts as two), at least 44 px so its label fits. At 320 px the card dots are about 14 px apart.
 
 Flow:
 
@@ -289,12 +290,15 @@ Do not reorder them, reword them, or add a fifth without the owner's decision.
   - Code: `cardHTML(n)` / `startHTML()` build a page as a string so the neighbour can be drawn in `#peek`; `renderCard()` then binds the buttons on the real page. Keep that split when adding interactive cards.
 - **Card dots** (owner's request, Nov 2026): tap a dot in the progress bar, or drag a finger (or the mouse) along it, to open any card. This is for review: after reading, the driver can go straight back to one card instead of tapping Back many times.
   - **Guide-type note:** "open any card directly" comes from the task guide type (GUIDE-PRINCIPLES.md section 2). The page stays a training guide; it borrows only this, because drivers review cards before and during the quiz.
-  - The dots are small, so **the whole strip is the touch area**: the dot nearest the finger opens. A touch more than 16 px from every dot does nothing, so **the quiz part of the bar cannot be tapped**.
+  - The dots are small, so **the whole strip is the touch area**: the dot nearest the finger opens. A touch more than 16 px from every dot does nothing.
+  - **The quiz dot** works only after the quiz has started (with the last card's button); before that it is disabled, so the quiz is still started by a deliberate tap. After that it goes back to **where the driver left the quiz**: the same question with its answer and feedback, or the name page, or the finish page. It never restarts the quiz or skips a question.
+  - A tap cancels the browser's follow-up click. Without that, the click can land on the Back button (the page has just scrolled to the top) and go one page back.
   - A tap opens the card at its top, with the normal slide-in. While dragging, the card changes as the finger passes each dot, with no slide; only the card where the drag ends is marked as opened. An up / down move on the strip is left to page scrolling.
-  - From the quiz, the name page or the finish page, a dot still opens a card. Quiz answers are kept; the last card's button says "Back to the quiz" or "Back to the finish". Jumping out of the quiz skips nothing.
+  - From the quiz, the name page or the finish page, a dot still opens a card. Quiz answers are kept; the quiz dot, or the last card's button ("Back to the quiz" / "Back to the finish"), leads back. Jumping out of the quiz skips nothing.
+  - The page swipe is unchanged: the last card still does not swipe into the quiz.
   - **All cards can be opened, also ones not read yet.** This adds no new skip: a swipe could already reach the last card, and the quiz still checks the rules.
   - **Back** still goes one page back in card order, not to the card the driver jumped from.
-  - Keyboard: each dot is a button ("Card 3: Camera setup"); Enter or Space opens it.
+  - Keyboard: each dot is a button ("Card 3: Camera setup", "Quiz: back to where you were"); Enter or Space opens it.
   - No hint teaches the dots (none was asked for).
 - **Quiz:** tap an answer to select it, then tap **Check answer**. This two-step design prevents accidental taps. Feedback shows right/wrong with a one-line reason. Wrong questions **come back at the end** until all are right. **Reset** sits top-right of the quiz and turns coral after a wrong answer. **Back** goes to the previous question, it does not restart the quiz.
 - **Quiz pictures set the scene and never show the answer.**

@@ -5,7 +5,7 @@ A short, mobile-friendly guide for drivers on dash cam road survey jobs.
 Live page: https://andrewwang003.github.io/dashcam-drive-guide/
 
 - 15 rule cards in four stages (before you drive, on the road, between sessions, after the last session), each with an animated picture
-- A progress bar with one dot per card: tap a dot, or drag along the bar, to go back to any card
+- A progress bar with one dot per card and the quiz as the last dot: tap a dot, or drag along the bar, to go back to any card, or back to the quiz
 - 10-question quiz (tap an answer, then **Check answer**; missed questions come back at the end)
 - A completion card for the driver to screenshot and send to their supervisor
 - Daylight and dark theme (follows the phone; one button to switch)
