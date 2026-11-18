@@ -313,7 +313,12 @@ Do not reorder them, reword them, or add a fifth without the owner's decision.
 ## 11. Typography and layout
 
 - Display: **Overpass** 600/800 (headings, buttons, labels; uppercase labels use letter-spacing).
-- Body: **Atkinson Hyperlegible** 400/700, 17 px, line-height 1.5. Chosen for legibility for non-native readers.
+- Body: **Atkinson Hyperlegible** 400/700, 17 px at the default text size, line-height 1.5. Chosen for legibility for non-native readers.
+- **Text size control** (`Aa`, top right, left of the theme button): four sizes, 90 / 100 / 115 / 130 %, as in
+  GUIDE-PRINCIPLES.md 4.8. Here the top bar and the progress bar keep their size, and so do the drawn pictures
+  (SVG text is part of the picture). The top bar is not sticky in this guide, so `Aa`, like the theme button, is
+  reached at the top of the page. Checked: every card, the quiz and the finish page at 130 % and 320 px, no text
+  out of its box.
 - Numbers and codes: **Overpass Mono** 600.
 - No other fonts. In SVG, text uses Overpass or Overpass Mono.
 - Cards: `--surface` background, 1 px `--line` border, 18 px radius. No drop shadows.

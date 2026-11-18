@@ -11,7 +11,7 @@ Each repository also has:
 If the owner (Andrew Wang) gives an instruction that conflicts with this file, the owner wins. Then update this
 file, in every repository, in the same change.
 
-Last updated: 17 November 2026.
+Last updated: 18 November 2026.
 
 ---
 
@@ -78,7 +78,7 @@ A page never claims to do what it does not do: it does not "send", "save" or "su
 ### 4.1 Fonts
 
 - Headings, buttons, labels: **Overpass** 600 / 800. Uppercase labels get letter-spacing.
-- Body: **Atkinson Hyperlegible** 400 / 700, 17 px, line height 1.5. Chosen for readers of a second language.
+- Body: **Atkinson Hyperlegible** 400 / 700, 17 px at the default text size (4.8), line height 1.5. Chosen for readers of a second language.
 - Codes and numbers: **Overpass Mono** 600.
 - No other fonts.
 
@@ -129,7 +129,7 @@ under `:root[data-theme="dark"]`. Change both together.
 |---|---|
 | Main (Start, Next, Check answer, the first-time choice) | Amber fill `--brand`, navy text `--brand-ink`, both modes |
 | Main, not available yet | The same at 40% opacity |
-| Secondary (Previous, Back, theme, Play, Reset) | `--surface` fill with a `--line` outline; Play has an amber outline |
+| Secondary (Previous, Back, theme, text size, Play, Reset) | `--surface` fill with a `--line` outline; Play has an amber outline |
 | Selected answer | Amber outline and a light amber tint |
 
 - One main button per screen, so the eye knows where to go.
@@ -152,6 +152,26 @@ The space a picture needs is kept **before** it loads, so text never jumps when 
   the reader sees that something is loading. It disappears when the picture is ready. A picture that fails to load
   keeps its placeholder.
 - Marks drawn on a picture appear only when the picture is ready.
+
+### 4.8 Text size
+
+Every guide has a text-size control at the top right, just left of the theme button.
+
+- **`Aa`**: a round 44 px button, the same style as the theme button. A tap opens a small panel under it:
+  `A−`, four dots, `A+`. The dot for the current size is amber and larger. At the smallest or largest size, that
+  button is shown at 40% opacity and does nothing.
+- **Four sizes: 90, 100 (default), 115 and 130 %** of every text size on the page. No smaller than 90 %: small text
+  is harder for our readers, not easier.
+- The panel stays open while the reader taps `A−` / `A+`, so they can see each size. A tap outside it, or Esc,
+  closes it. The `Aa` button has an amber outline while the panel is open.
+- **What changes:** all the page text: titles, points, buttons, quiz and Help text.
+  **What stays:** the top bar, the progress bar or step strip, pictures and the marks on them, the picture viewer
+  and the hints, so the top bar still fits at 320 px.
+- The line the reader is on stays at the same place on screen when the size changes.
+- **Not remembered** (7, no browser storage): each visit starts at 100 %.
+- How it is built: every text size in the stylesheet is `calc(Npx * var(--fs))`; containers that keep their size set
+  `--fs:1`. The control's CSS, markup and script are the same in every guide. Class names start with `tsz`, so they
+  never clash with a guide's own classes.
 
 ## 5. Motion
 
@@ -218,7 +238,7 @@ The repositories are public.
 - [ ] Text: plain, short, nothing said twice; no names; content not invented.
 - [ ] Colours: tokens only; amber, coral and sage used with their meanings; no navy fill in day mode.
 - [ ] Day **and** night mode look right.
-- [ ] 320 px wide: no sideways scrolling, no text out of its box. Also check a computer width.
+- [ ] 320 px wide: no sideways scrolling, no text out of its box, also at the largest text size (130 %). Also check a computer width.
 - [ ] Buttons at least 44 px (strip items 40 px).
 - [ ] With slow pictures, nothing on the page moves when they arrive.
 - [ ] Every animation still teaches, and starts only when its picture is ready.

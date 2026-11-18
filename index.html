@@ -9,6 +9,8 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Overpass:wght@600;800&family=Overpass+Mono:wght@600&family=Atkinson+Hyperlegible:wght@400;700&display=swap">
 <style>
+:root{--fs:1}
+header,.phint{--fs:1}   /* text that keeps its size: top bar, pictures, hints */
 /* Layout: one narrow column, one card at a time. Top bar: Back, route progress with five stops, theme switch.
    Pictures: flat shapes, no outlines, one palette (navy, cream, amber, coral, sage). Coral = attention, amber = action, sage = correct. */
 :root{
@@ -33,7 +35,7 @@
 body{margin:0}
 img{max-width:100%}
 [hidden]{display:none!important}
-body{background:var(--bg);color:var(--ink);font-family:var(--f-body);font-size:17px;line-height:1.5;
+body{background:var(--bg);color:var(--ink);font-family:var(--f-body);font-size:calc(17px * var(--fs));line-height:1.5;
   padding-left:max(16px, env(safe-area-inset-left, 0px));padding-right:max(16px, env(safe-area-inset-right, 0px));padding-block:14px 32px}
 .wrap{max-width:560px;margin:0 auto;display:flex;flex-direction:column;gap:14px}
 /* pages: swipe sideways to change card (start page and cards only, not the quiz).
@@ -51,7 +53,7 @@ body{background:var(--bg);color:var(--ink);font-family:var(--f-body);font-size:1
 .phint.press .phand svg{transform:scale(.85)}
 .phint .co{fill:var(--brand-ink)} .phint .cf{fill:var(--amber)} .phint .cl{fill:var(--brand-ink);opacity:.45}
 .phint .phcap{position:absolute;left:0;top:-54px;transform:translateX(-50%);white-space:nowrap;background:var(--brand);color:var(--brand-ink);
-  border-radius:999px;padding:8px 14px 6px;font-family:var(--f-display);font-weight:800;font-size:15px}
+  border-radius:999px;padding:8px 14px 6px;font-family:var(--f-display);font-weight:800;font-size:calc(15px * var(--fs))}
 /* Next / Back buttons: the new page slides in from the side it came from */
 #view.inR{animation:inR .22s ease-out}
 #view.inL{animation:inL .22s ease-out}
@@ -62,10 +64,10 @@ button:focus-visible,input:focus-visible{outline:3px solid var(--amber);outline-
 
 /* top bar */
 .bar{display:flex;align-items:center;gap:10px;min-height:44px}
-.back{font-family:var(--f-display);font-weight:800;font-size:15px;background:var(--surface);color:var(--ink);border:1.5px solid var(--line);border-radius:999px;padding:9px 15px 7px;cursor:pointer;display:flex;align-items:center;gap:6px}
+.back{font-family:var(--f-display);font-weight:800;font-size:calc(15px * var(--fs));background:var(--surface);color:var(--ink);border:1.5px solid var(--line);border-radius:999px;padding:9px 15px 7px;cursor:pointer;display:flex;align-items:center;gap:6px}
 .back svg{width:13px;height:13px}
-.where{flex:1;min-width:0;font-size:14px;color:var(--muted);font-variant-numeric:tabular-nums}
-.where b{display:block;font-family:var(--f-display);font-weight:800;font-size:13px;letter-spacing:.08em;text-transform:uppercase;color:var(--ink)}
+.where{flex:1;min-width:0;font-size:calc(14px * var(--fs));color:var(--muted);font-variant-numeric:tabular-nums}
+.where b{display:block;font-family:var(--f-display);font-weight:800;font-size:calc(13px * var(--fs));letter-spacing:.08em;text-transform:uppercase;color:var(--ink)}
 .theme{width:44px;height:44px;flex:none;border-radius:50%;border:1.5px solid var(--line);background:var(--surface);color:var(--ink);cursor:pointer;display:grid;place-items:center}
 .theme svg{width:22px;height:22px}
 
@@ -86,48 +88,48 @@ button:focus-visible,input:focus-visible{outline:3px solid var(--amber);outline-
 .dot.now{width:16px;height:16px;background:var(--amber);border:2.5px solid var(--ink);box-shadow:0 0 0 3px rgba(242,169,59,.35);z-index:2}
 .dot:disabled{cursor:default}
 .route .labels{position:relative;height:14px;margin-top:4px}
-.route .labels span{position:absolute;top:0;left:0;font-family:var(--f-display);font-weight:800;font-size:10px;line-height:14px;letter-spacing:.06em;color:var(--muted);white-space:nowrap}
+.route .labels span{position:absolute;top:0;left:0;font-family:var(--f-display);font-weight:800;font-size:calc(10px * var(--fs));line-height:14px;letter-spacing:.06em;color:var(--muted);white-space:nowrap}
 .route .labels span.now{color:var(--ink)}
 
 /* card */
 .card{background:var(--surface);border:1px solid var(--line);border-radius:18px;padding:20px;display:flex;flex-direction:column;gap:14px}
-.stage{align-self:flex-start;font-family:var(--f-display);font-weight:800;font-size:12px;letter-spacing:.1em;text-transform:uppercase;border:1.5px solid var(--amber);border-radius:999px;padding:5px 12px 3px}
-h1{margin:0;font-family:var(--f-display);font-weight:800;font-size:29px;line-height:1.1;text-wrap:balance}
+.stage{align-self:flex-start;font-family:var(--f-display);font-weight:800;font-size:calc(12px * var(--fs));letter-spacing:.1em;text-transform:uppercase;border:1.5px solid var(--amber);border-radius:999px;padding:5px 12px 3px}
+h1{margin:0;font-family:var(--f-display);font-weight:800;font-size:calc(29px * var(--fs));line-height:1.1;text-wrap:balance}
 h1:focus{outline:none}
-h1.q{font-size:23px;line-height:1.2}
+h1.q{font-size:calc(23px * var(--fs));line-height:1.2}
 .scene{border-radius:14px;overflow:hidden;background:#F3EBDD;box-shadow:0 0 0 1px var(--scene-edge)}
 .scene svg{display:block;width:100%;height:auto}
-.lead{margin:0;font-size:18px}
+.lead{margin:0;font-size:calc(18px * var(--fs))}
 ul.pts{margin:0;padding:0;list-style:none;display:flex;flex-direction:column;gap:10px}
 ul.pts li{position:relative;padding-left:24px}
 ul.pts li::before{content:"";position:absolute;left:2px;top:.55em;width:12px;height:4px;border-radius:2px;background:var(--amber)}
 .no{color:var(--coral);font-weight:700}
-.note{font-size:15px;color:var(--muted);margin:0}
-.eyebrow{font-family:var(--f-display);font-weight:800;font-size:12px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted)}
-.tap{align-self:flex-start;font-family:var(--f-display);font-weight:800;font-size:16px;cursor:pointer;background:var(--brand);color:var(--brand-ink);border:0;border-radius:999px;padding:11px 20px 9px;text-align:left}
+.note{font-size:calc(15px * var(--fs));color:var(--muted);margin:0}
+.eyebrow{font-family:var(--f-display);font-weight:800;font-size:calc(12px * var(--fs));letter-spacing:.1em;text-transform:uppercase;color:var(--muted)}
+.tap{align-self:flex-start;font-family:var(--f-display);font-weight:800;font-size:calc(16px * var(--fs));cursor:pointer;background:var(--brand);color:var(--brand-ink);border:0;border-radius:999px;padding:11px 20px 9px;text-align:left}
 .seg{display:flex;align-items:center;gap:10px;flex-wrap:wrap;font-weight:700}
-.seg button{min-width:56px;font-family:var(--f-display);font-weight:800;font-size:16px;cursor:pointer;border-radius:999px;padding:9px 16px 7px;background:transparent;color:var(--ink);border:1.5px solid var(--line)}
+.seg button{min-width:56px;font-family:var(--f-display);font-weight:800;font-size:calc(16px * var(--fs));cursor:pointer;border-radius:999px;padding:9px 16px 7px;background:transparent;color:var(--ink);border:1.5px solid var(--line)}
 .seg button[aria-pressed="true"]{background:var(--brand);color:var(--brand-ink);border-color:var(--brand)}
 .steps{display:flex;gap:8px;flex-wrap:wrap;margin:0;padding:0;list-style:none}
-.steps li{padding:5px 12px 3px;border-radius:999px;border:1.5px solid var(--line);font-family:var(--f-display);font-weight:800;font-size:13px;color:var(--muted)}
+.steps li{padding:5px 12px 3px;border-radius:999px;border:1.5px solid var(--line);font-family:var(--f-display);font-weight:800;font-size:calc(13px * var(--fs));color:var(--muted)}
 .steps li.done{border-color:var(--sage);color:var(--ink);background:var(--ok-bg)}
 
 .nav{display:flex}
-.primary{flex:1;font-family:var(--f-display);font-weight:800;font-size:17px;border-radius:12px;padding:14px 20px 12px;cursor:pointer;border:0;background:var(--brand);color:var(--brand-ink)}
+.primary{flex:1;font-family:var(--f-display);font-weight:800;font-size:calc(17px * var(--fs));border-radius:12px;padding:14px 20px 12px;cursor:pointer;border:0;background:var(--brand);color:var(--brand-ink)}
 .primary:disabled{opacity:.4;cursor:default}
 
 .keys{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:12px}
 .keys li{display:grid;grid-template-columns:34px 1fr;gap:12px;align-items:start}
 .keys li > div{min-width:0}
 .keys svg{width:34px;height:34px}
-.keys b{display:block;font-family:var(--f-display);font-weight:800;font-size:18px;line-height:1.25}
-.keys span{display:block;color:var(--muted);font-size:15px}
+.keys b{display:block;font-family:var(--f-display);font-weight:800;font-size:calc(18px * var(--fs));line-height:1.25}
+.keys span{display:block;color:var(--muted);font-size:calc(15px * var(--fs))}
 .keys.short span{display:none}
 .keys.short li{align-items:center}
 
 /* quiz */
 .qhead{display:flex;justify-content:space-between;align-items:center;gap:10px}
-.reset{font-family:var(--f-display);font-weight:800;font-size:14px;border-radius:999px;padding:6px 14px 4px;cursor:pointer;background:transparent;color:var(--ink);border:1.5px solid var(--line)}
+.reset{font-family:var(--f-display);font-weight:800;font-size:calc(14px * var(--fs));border-radius:999px;padding:6px 14px 4px;cursor:pointer;background:transparent;color:var(--ink);border:1.5px solid var(--line)}
 .reset.alert{background:var(--coral);border-color:var(--coral);color:var(--surface)}
 .opts{display:flex;flex-direction:column;gap:10px}
 .opt{text-align:left;cursor:pointer;background:var(--bg);color:var(--ink);border:2px solid var(--line);border-radius:12px;padding:14px 16px;line-height:1.35}
@@ -143,8 +145,8 @@ label{font-weight:700}
 input[type=text]{font:inherit;width:100%;padding:12px 14px;border-radius:12px;border:2px solid var(--line);background:var(--bg);color:var(--ink)}
 .cert{border:3px solid var(--amber);border-radius:16px;padding:20px;display:flex;flex-direction:column;gap:8px;text-align:center}
 .cert svg{width:56px;height:56px;margin:0 auto}
-.cert .who{font-family:var(--f-display);font-weight:800;font-size:28px;line-height:1.2;overflow-wrap:anywhere}
-.cert .when{font-family:var(--f-mono);font-size:15px;color:var(--muted)}
+.cert .who{font-family:var(--f-display);font-weight:800;font-size:calc(28px * var(--fs));line-height:1.2;overflow-wrap:anywhere}
+.cert .when{font-family:var(--f-mono);font-size:calc(15px * var(--fs));color:var(--muted)}
 
 /* motion */
 @keyframes lane{to{stroke-dashoffset:92}} .lane{animation:lane 1.1s linear infinite} .lane-slow{animation:lane 3s linear infinite}
@@ -193,6 +195,27 @@ input[type=text]{font:inherit;width:100%;padding:12px 14px;border-radius:12px;bo
 [data-s="2"] .carplug{transform:translateY(16px)}
 .on{opacity:0;transition:opacity .3s .45s} [data-s="2"] .on{opacity:1}
 .off{transition:opacity .2s .4s} [data-s="2"] .off{opacity:0}
+
+/* text size (shared by all guides): "Aa" opens a small panel: A− / four dots / A+. Sizes 90, 100 (default), 115, 130 %.
+   Every text size on the page is calc(Npx * var(--fs)). The top bar, pictures, marks on pictures and hints keep --fs:1.
+   Not remembered: each visit starts at 100 %. */
+.tsz{position:relative;z-index:8;flex:none}
+.tszbtn{width:44px;height:44px;padding:0;border-radius:50%;border:1.5px solid var(--line);background:var(--surface);color:var(--ink);cursor:pointer;
+  display:grid;place-items:center;font-family:var(--f-display);font-weight:800;line-height:1}
+.tszbtn span{font-size:19px;padding-top:3px;letter-spacing:-.02em}
+.tszbtn small{font-size:14px}
+.tszbtn[aria-expanded="true"]{border:2px solid var(--amber)}
+.tszp{position:absolute;top:calc(100% + 8px);right:0;z-index:7;display:flex;align-items:center;gap:6px;padding:6px;
+  background:var(--surface);border:1.5px solid var(--line);border-radius:999px;white-space:nowrap}
+.tszp[hidden]{display:none}
+.tszp button{width:44px;height:44px;padding:3px 0 0;border-radius:50%;border:1.5px solid var(--line);background:var(--surface);color:var(--ink);cursor:pointer;
+  font-family:var(--f-display);font-weight:800;line-height:1;font-size:15px}
+.tszp button.up{font-size:20px}
+.tszp button:disabled{opacity:.4;cursor:default}
+.tszd{display:flex;align-items:center;gap:6px;padding:0 4px}
+.tszd i{width:8px;height:8px;border-radius:50%;background:var(--line)}
+.tszd i.tsz-on{width:12px;height:12px;background:var(--amber)}
+.tszl{position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap}
 </style>
 </head>
 <body>
@@ -202,6 +225,15 @@ input[type=text]{font:inherit;width:100%;padding:12px 14px;border-radius:12px;bo
     <div class="bar">
       <button class="back" id="backBtn" hidden aria-label="Go back one page"><svg viewBox="0 0 14 14" aria-hidden="true"><path d="M9 2 L4 7 L9 12" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg>Back</button>
       <div class="where"><b>Dash Cam Drive Guide</b><span id="count"></span></div>
+      <div class="tsz" id="tsz">
+        <button class="tszbtn" type="button" aria-expanded="false" aria-controls="tszp" aria-label="Text size" title="Text size"><span aria-hidden="true">A<small>a</small></span></button>
+        <div class="tszp" id="tszp" role="group" aria-label="Text size" hidden>
+          <button class="dn" type="button" aria-label="Smaller text">A−</button>
+          <span class="tszd" aria-hidden="true"><i></i><i></i><i></i><i></i></span>
+          <button class="up" type="button" aria-label="Larger text">A+</button>
+          <span class="tszl" aria-live="polite"></span>
+        </div>
+      </div>
       <button class="theme" id="themeBtn" type="button"></button>
     </div>
     <nav class="route" id="route" aria-label="Cards"></nav>
@@ -697,6 +729,44 @@ function pageHint(){
 window.addEventListener('touchstart',()=>{if(phT||phRaf)stopPageHint();},{capture:true,passive:true});
 
 render();
+})();
+
+/* ---------- text size (shared by all guides): "Aa" opens A− / four dots / A+.
+   The whole page text scales by --fs; the line the reader is on stays where it is on screen.
+   Not remembered (no browser storage): each visit starts at 100 %. ---------- */
+(() => {
+  const SIZES = [0.9, 1, 1.15, 1.3];
+  let si = 1;
+  const box = document.getElementById('tsz'), btn = box.querySelector('.tszbtn'), panel = box.querySelector('.tszp'),
+        dn = panel.querySelector('.dn'), up = panel.querySelector('.up'), dots = [...panel.querySelectorAll('.tszd i')], live = panel.querySelector('.tszl');
+  // the first line of the page just below the top bar: it is kept at the same place on screen when the size changes
+  function anchor() {
+    const hb = Math.max(0, document.querySelector('header').getBoundingClientRect().bottom);
+    for (const e of document.getElementById('view').querySelectorAll('*')) {
+      if (e.firstElementChild) continue;
+      const r = e.getBoundingClientRect();
+      if (r.height > 0 && r.bottom > hb) return e;
+    }
+    return null;
+  }
+  function setSize(i, say) {
+    si = Math.max(0, Math.min(SIZES.length - 1, i));
+    const a = scrollY > 0 ? anchor() : null, t = a && a.getBoundingClientRect().top;
+    document.documentElement.style.setProperty('--fs', SIZES[si]);
+    if (a) scrollBy(0, a.getBoundingClientRect().top - t);
+    dn.disabled = si === 0; up.disabled = si === SIZES.length - 1;
+    if (document.activeElement === dn && dn.disabled) up.focus({preventScroll: true});
+    if (document.activeElement === up && up.disabled) dn.focus({preventScroll: true});
+    dots.forEach((d, k) => d.classList.toggle('tsz-on', k === si));
+    if (say) live.textContent = `Text size ${si + 1} of ${SIZES.length}`;
+  }
+  const open = o => { panel.hidden = !o; btn.setAttribute('aria-expanded', String(o)); };
+  btn.addEventListener('click', () => open(panel.hidden));
+  dn.addEventListener('click', () => setSize(si - 1, true));
+  up.addEventListener('click', () => setSize(si + 1, true));
+  document.addEventListener('pointerdown', e => { if (!panel.hidden && !box.contains(e.target)) open(false); }, true);
+  document.addEventListener('keydown', e => { if (e.key === 'Escape' && !panel.hidden) { open(false); btn.focus({preventScroll: true}); } });
+  setSize(1, false);
 })();
 </script>
 
