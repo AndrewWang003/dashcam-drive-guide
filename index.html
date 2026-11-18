@@ -69,16 +69,15 @@ button:focus-visible,input:focus-visible{outline:3px solid var(--amber);outline-
 .theme{width:44px;height:44px;flex:none;border-radius:50%;border:1.5px solid var(--line);background:var(--surface);color:var(--ink);cursor:pointer;display:grid;place-items:center}
 .theme svg{width:22px;height:22px}
 
-/* route progress: one dot per card, and the quiz as the last dot. The line ends at the quiz dot, so a full line = the whole guide.
-   Key dots (the first card of each stage, and the quiz) are bigger, with a ring, under the stage label.
-   Tap a dot, or drag along the strip, to open it. The quiz dot works only after the quiz has started.
-   Column widths follow the number of dots in each stage (set in the script), at least 44 px so the labels fit. */
-.route{display:grid;gap:0;position:relative;padding-block:2px;touch-action:pan-y;user-select:none;-webkit-user-select:none;-webkit-tap-highlight-color:transparent}
-.leg{display:flex;flex-direction:column;gap:4px;min-width:0}
-.leg .rail{position:relative;height:22px}
-.leg .rail::before{content:"";position:absolute;left:7px;right:-7px;top:9px;height:4px;border-radius:2px;background:var(--line)}
-.leg:last-child .rail::before{right:7px}
-.leg .fill{position:absolute;left:7px;top:9px;height:4px;border-radius:2px;background:var(--amber);width:0;transition:width .35s ease}
+/* route progress: one dot per card, and the quiz as the last dot. All dots are the same distance apart, whatever their size.
+   The line ends at the quiz dot, so a full line = the whole guide.
+   Key dots (the first card of each stage, and the quiz) are bigger, with a ring. Each stage label sits under its key dot;
+   the script centres it there and pushes neighbours apart where they would touch (BREAK and AFTER are only one dot apart).
+   Tap a dot, or drag along the strip, to open it. The quiz dot works only after the quiz has started. */
+.route{position:relative;padding-block:2px;touch-action:pan-y;user-select:none;-webkit-user-select:none;-webkit-tap-highlight-color:transparent}
+.route .rail{position:relative;height:22px}
+.route .rail::before{content:"";position:absolute;left:7px;right:7px;top:9px;height:4px;border-radius:2px;background:var(--line)}
+.route .fill{position:absolute;left:7px;top:9px;height:4px;border-radius:2px;background:var(--amber);width:0;transition:width .35s ease}
 .dot{position:absolute;top:50%;width:8px;height:8px;padding:0;margin:0;border-radius:50%;background:var(--surface);border:2px solid var(--line);
   transform:translate(-50%,-50%);z-index:1;cursor:pointer;transition:width .2s,height .2s,background-color .2s,border-color .2s,box-shadow .2s}
 .dot.seen{background:var(--amber);border-color:var(--amber)}
@@ -86,9 +85,9 @@ button:focus-visible,input:focus-visible{outline:3px solid var(--amber);outline-
 .dot.key.seen{border-color:var(--ink)}
 .dot.now{width:16px;height:16px;background:var(--amber);border:2.5px solid var(--ink);box-shadow:0 0 0 3px rgba(242,169,59,.35);z-index:2}
 .dot:disabled{cursor:default}
-.leg span{font-family:var(--f-display);font-weight:800;font-size:10px;letter-spacing:.06em;color:var(--muted);white-space:nowrap}
-.leg:last-child span{align-self:flex-end}
-.leg.now span{color:var(--ink)}
+.route .labels{position:relative;height:14px;margin-top:4px}
+.route .labels span{position:absolute;top:0;left:0;font-family:var(--f-display);font-weight:800;font-size:10px;line-height:14px;letter-spacing:.06em;color:var(--muted);white-space:nowrap}
+.route .labels span.now{color:var(--ink)}
 
 /* card */
 .card{background:var(--surface);border:1px solid var(--line);border-radius:18px;padding:20px;display:flex;flex-direction:column;gap:14px}
@@ -439,27 +438,36 @@ const seen=Array(N_+1).fill(false);   // seen[n]: card n has been opened (not ju
 const nCorrect=()=>ok.filter(Boolean).length,allCorrect=()=>nCorrect()===Q;
 function nextTarget(from){for(let k=from+1;k<Q;k++)if(!ok[k])return k;for(let k=0;k<=from;k++)if(!ok[k])return k;return -1;}
 const inStage=g=>CARDS.filter(c=>c.g===g).length, before=(i)=>CARDS.slice(0,i).filter(c=>c.g===CARDS[i].g).length;
-const QUIZ_LEG=LEGS.length-1, units=g=>g===QUIZ_LEG?inStage(g)+1:inStage(g);   // the quiz leg: its card(s), then the quiz dot at the end
-const QUIZ_DOT=N_+1;                     // data-n of the quiz dot
-/* one dot per card, spaced evenly inside its stage; dot k of n sits at k/n of the stage width.
-   Key dot = first card of a stage; in the quiz stage the key dot is the quiz itself, at the end of the line. */
-routeEl.style.gridTemplateColumns=LEGS.map((l,g)=>`minmax(44px,${units(g)}fr)`).join(' ');
-routeEl.innerHTML=LEGS.map((l,g)=>`<div class="leg"><div class="rail"><i class="fill"></i>${CARDS.map((c,i)=>c.g!==g?'':
-  `<button class="dot${before(i)===0&&g!==QUIZ_LEG?' key':''}" type="button" data-n="${i+1}" style="left:calc(7px + ${100*before(i)/units(g)}%)" aria-label="Card ${i+1}: ${c.t}"></button>`).join('')}${g===QUIZ_LEG?
-  `<button class="dot key" type="button" data-n="${QUIZ_DOT}" style="left:calc(100% - 7px)" aria-label="Quiz: back to where you were" disabled></button>`:''}</div><span aria-hidden="true">${l}</span></div>`).join('');
-const DOTS=[...routeEl.querySelectorAll('.dot')];
+const QUIZ_LEG=LEGS.length-1, QUIZ_DOT=N_+1, LASTPOS=N_;   // the quiz dot: data-n N_+1, position N_ (the end of the line)
+/* All dots are evenly spaced along the line: card n at position n-1, the quiz at position N_.
+   Key dot = first card of a stage; for the quiz stage the key dot is the quiz itself. */
+const at=k=>`calc(7px + (100% - 14px) * ${k/LASTPOS})`;
+const KEYPOS=LEGS.map((l,g)=>g===QUIZ_LEG?LASTPOS:CARDS.findIndex(c=>c.g===g));
+routeEl.innerHTML=`<div class="rail"><i class="fill"></i>${CARDS.map((c,i)=>
+  `<button class="dot${before(i)===0&&c.g!==QUIZ_LEG?' key':''}" type="button" data-n="${i+1}" style="left:${at(i)}" aria-label="Card ${i+1}: ${c.t}"></button>`).join('')}
+  <button class="dot key" type="button" data-n="${QUIZ_DOT}" style="left:${at(LASTPOS)}" aria-label="Quiz: back to where you were" disabled></button></div>
+  <div class="labels" aria-hidden="true">${LEGS.map(l=>`<span>${l}</span>`).join('')}</div>`;
+const DOTS=[...routeEl.querySelectorAll('.dot')], LABELS=[...routeEl.querySelectorAll('.labels span')];
+/* Labels: centred under their key dot, kept inside the bar, and at least 6 px apart.
+   A forward pass pushes a label right when it would touch the one before; a backward pass pulls labels left from the end. */
+function layoutLabels(){
+  const W=routeEl.querySelector('.rail').clientWidth,GAP=6;if(!W)return;
+  const w=LABELS.map(s=>s.offsetWidth),x=KEYPOS.map((k,i)=>7+(W-14)*k/LASTPOS-w[i]/2);
+  for(let i=0;i<x.length;i++)x[i]=Math.max(x[i],i?x[i-1]+w[i-1]+GAP:0);
+  for(let i=x.length-1;i>=0;i--)x[i]=Math.min(x[i],i<x.length-1?x[i+1]-GAP-w[i]:W-w[i]);
+  LABELS.forEach((s,i)=>s.style.transform=`translateX(${Math.round(x[i])}px)`);
+}
+layoutLabels();addEventListener('resize',layoutLabels);if(document.fonts&&document.fonts.ready)document.fonts.ready.then(layoutLabels);
 
 function progress(){
-  let leg=-1,frac=0,label;
+  let pos=-1,stage=-1,label;
   if(step===0){label='About 7 minutes';}
-  else if(step<=N_){const c=CARDS[step-1];leg=c.g;frac=before(step-1)/units(c.g);label=`Card ${step} of ${N_}`;}
-  else if(step===N_+1){leg=QUIZ_LEG;frac=1;label=`Quiz · ${nCorrect()} of ${Q} correct`;}
-  else{leg=QUIZ_LEG;frac=1;label='Finished';}
+  else if(step<=N_){pos=step-1;stage=CARDS[step-1].g;label=`Card ${step} of ${N_}`;}
+  else if(step===N_+1){pos=LASTPOS;stage=QUIZ_LEG;label=`Quiz · ${nCorrect()} of ${Q} correct`;}
+  else{pos=LASTPOS;stage=QUIZ_LEG;label='Finished';}
   document.getElementById('count').textContent=label;
-  [...routeEl.children].forEach((el,i)=>{el.classList.toggle('done',i<leg);el.classList.toggle('now',i===leg);
-    const f=i<leg?1:i===leg?frac:0;
-    // the quiz leg's line ends at the quiz dot (14 px before the end of the leg)
-    el.querySelector('.fill').style.width=i===QUIZ_LEG?`calc((100% - 14px) * ${f})`:`calc(100% * ${f})`;});
+  routeEl.querySelector('.fill').style.width=`calc((100% - 14px) * ${Math.max(pos,0)/LASTPOS})`;   // the line runs to the current dot
+  LABELS.forEach((s,i)=>s.classList.toggle('now',i===stage));
   DOTS.forEach(d=>{const n=+d.dataset.n,now=n===QUIZ_DOT?step>N_:n===step;
     d.classList.toggle('now',now);d.classList.toggle('seen',!now&&(n===QUIZ_DOT?quizStarted:seen[n]));
     if(n===QUIZ_DOT)d.disabled=!quizStarted;

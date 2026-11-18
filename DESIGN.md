@@ -45,9 +45,10 @@ Top bar (always visible):
 - **Theme button**, top-right (section 8).
 - **Route progress bar** with five stages: `BEFORE · ROAD · BREAK · AFTER · QUIZ`, **one dot per card**, and **the quiz as the last dot**. It is the stage map, the progress indicator and a card picker (section 10, "Card dots").
   - **The line ends at the quiz dot.** Nothing comes after it, so a full line means the whole guide is done. The amber fill runs to the current dot; in the quiz and on the name and finish pages the line is full. The number of correct answers is in the text above the bar ("Quiz · 3 of 10 correct"), not in the line.
-  - **Key dots** are bigger (13 px), with a navy ring when reached: the first card of each stage, and the quiz dot. Each sits under its stage label (the QUIZ label is right-aligned under the quiz dot), so the driver sees which stage they are in. The last card ("Remember these 4") is a small dot just before the quiz dot.
+  - **All dots are the same distance apart**, whatever their size (owner's request): 16 dots (15 cards and the quiz) spread evenly along the line, so a stage takes space by its number of cards. At 320 px the dots are about 18 px apart.
+  - **Key dots** are bigger (13 px), with a navy ring when reached: the first card of each stage, and the quiz dot. The last card ("Remember these 4") is a small dot just before the quiz dot.
+  - **Stage labels** sit under their key dots. BREAK has one card, so BREAK and AFTER are only one dot apart and their labels would touch. The script (`layoutLabels`) centres each label under its key dot, keeps it inside the bar, and pushes neighbours apart to keep 6 px between labels. At 320 px BREAK moves a little to the left of its dot; at wider screens every label sits under its dot. It runs again on resize and when the fonts have loaded.
   - Other dots: the current one = 16 px amber with a navy ring and a soft amber halo; already opened = small amber; not opened yet = small hollow.
-  - Each stage's width follows its number of dots (the quiz stage counts as two), at least 44 px so its label fits. At 320 px the card dots are about 14 px apart.
 
 Flow:
 
@@ -295,7 +296,7 @@ Do not reorder them, reword them, or add a fifth without the owner's decision.
   - A tap cancels the browser's follow-up click. Without that, the click can land on the Back button (the page has just scrolled to the top) and go one page back.
   - A tap opens the card at its top, with the normal slide-in. While dragging, the card changes as the finger passes each dot, with no slide; only the card where the drag ends is marked as opened. An up / down move on the strip is left to page scrolling.
   - From the quiz, the name page or the finish page, a dot still opens a card. Quiz answers are kept; the quiz dot, or the last card's button ("Back to the quiz" / "Back to the finish"), leads back. Jumping out of the quiz skips nothing.
-  - The page swipe is unchanged: the last card still does not swipe into the quiz.
+  - **The last card never swipes into the quiz** (owner's decision), also after the quiz has started. Starting or going back to the quiz is a tap: the last card's button, or the quiz dot.
   - **All cards can be opened, also ones not read yet.** This adds no new skip: a swipe could already reach the last card, and the quiz still checks the rules.
   - **Back** still goes one page back in card order, not to the card the driver jumped from.
   - Keyboard: each dot is a button ("Card 3: Camera setup", "Quiz: back to where you were"); Enter or Space opens it.
