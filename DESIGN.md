@@ -43,7 +43,10 @@ Top bar (always visible):
 - **Back** button, top-left. Goes back exactly one page, also inside the quiz.
 - Title and position text ("Card 3 of 15", "Question 2 of 10").
 - **Theme button**, top-right (section 8).
-- **Route progress bar** with five stops: `BEFORE · ROAD · BREAK · AFTER · QUIZ`. The amber fill moves forward card by card, so it is both the stage map and the progress indicator.
+- **Route progress bar** with five stages: `BEFORE · ROAD · BREAK · AFTER · QUIZ`, and **one dot per card** on the rail. It is the stage map, the progress indicator and a card picker (section 10, "Card dots").
+  - The amber fill runs to the current card's dot. In the quiz it runs from the last card's dot to the end of the bar, by correct answers. The quiz part has no dots.
+  - Dots: current card = larger amber dot with a navy ring; a card already opened = small amber dot; not opened yet = small hollow dot.
+  - Each stage's width follows its number of cards (the quiz stage counts as two), at least 44 px so its label fits. At 320 px the dots are about 14 px apart.
 
 Flow:
 
@@ -284,6 +287,15 @@ Do not reorder them, reword them, or add a fifth without the owner's decision.
   - **Next / Back buttons still go to the top of the new page.** The Next button sits at the bottom of a card, so keeping the height there would open the next card at its end.
   - **No swipe in the quiz, the name page or the finish page.** A sideways swipe there must do nothing, so an answer can never be skipped by accident.
   - Code: `cardHTML(n)` / `startHTML()` build a page as a string so the neighbour can be drawn in `#peek`; `renderCard()` then binds the buttons on the real page. Keep that split when adding interactive cards.
+- **Card dots** (owner's request, Nov 2026): tap a dot in the progress bar, or drag a finger (or the mouse) along it, to open any card. This is for review: after reading, the driver can go straight back to one card instead of tapping Back many times.
+  - **Guide-type note:** "open any card directly" comes from the task guide type (GUIDE-PRINCIPLES.md section 2). The page stays a training guide; it borrows only this, because drivers review cards before and during the quiz.
+  - The dots are small, so **the whole strip is the touch area**: the dot nearest the finger opens. A touch more than 16 px from every dot does nothing, so **the quiz part of the bar cannot be tapped**.
+  - A tap opens the card at its top, with the normal slide-in. While dragging, the card changes as the finger passes each dot, with no slide; only the card where the drag ends is marked as opened. An up / down move on the strip is left to page scrolling.
+  - From the quiz, the name page or the finish page, a dot still opens a card. Quiz answers are kept; the last card's button says "Back to the quiz" or "Back to the finish". Jumping out of the quiz skips nothing.
+  - **All cards can be opened, also ones not read yet.** This adds no new skip: a swipe could already reach the last card, and the quiz still checks the rules.
+  - **Back** still goes one page back in card order, not to the card the driver jumped from.
+  - Keyboard: each dot is a button ("Card 3: Camera setup"); Enter or Space opens it.
+  - No hint teaches the dots (none was asked for).
 - **Quiz:** tap an answer to select it, then tap **Check answer**. This two-step design prevents accidental taps. Feedback shows right/wrong with a one-line reason. Wrong questions **come back at the end** until all are right. **Reset** sits top-right of the quiz and turns coral after a wrong answer. **Back** goes to the previous question, it does not restart the quiz.
 - **Quiz pictures set the scene and never show the answer.**
 - **Power on** card: two taps (cameras → adapter, then adapter → car). Unplug returns to step 1.

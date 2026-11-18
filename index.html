@@ -69,15 +69,19 @@ button:focus-visible,input:focus-visible{outline:3px solid var(--amber);outline-
 .theme{width:44px;height:44px;flex:none;border-radius:50%;border:1.5px solid var(--line);background:var(--surface);color:var(--ink);cursor:pointer;display:grid;place-items:center}
 .theme svg{width:22px;height:22px}
 
-/* route progress: five stops, fill grows card by card inside each leg */
-.route{display:grid;grid-template-columns:repeat(5,1fr);gap:0;position:relative}
+/* route progress: five stages, one dot per card. The fill runs to the current card.
+   Tap a dot, or drag along the strip, to open any card. The quiz part has no dots and cannot be tapped.
+   Column widths follow the number of cards in each stage (set in the script), at least 44 px so the labels fit. */
+.route{display:grid;gap:0;position:relative;padding-block:4px;touch-action:pan-y;user-select:none;-webkit-user-select:none;-webkit-tap-highlight-color:transparent}
 .leg{display:flex;flex-direction:column;gap:6px;min-width:0}
-.leg .rail{position:relative;height:14px;display:flex;align-items:center}
-.leg .rail::before{content:"";position:absolute;left:7px;right:-7px;height:4px;border-radius:2px;background:var(--line)}
+.leg .rail{position:relative;height:16px}
+.leg .rail::before{content:"";position:absolute;left:7px;right:-7px;top:6px;height:4px;border-radius:2px;background:var(--line)}
 .leg:last-child .rail::before{right:7px}
-.leg .fill{position:absolute;left:7px;height:4px;border-radius:2px;background:var(--amber);width:0;transition:width .35s ease}
-.leg .stop{position:relative;width:14px;height:14px;border-radius:50%;background:var(--surface);border:2.5px solid var(--line);z-index:1}
-.leg.done .stop,.leg.now .stop{background:var(--amber);border-color:var(--ink)}
+.leg .fill{position:absolute;left:7px;top:6px;height:4px;border-radius:2px;background:var(--amber);width:0;transition:width .35s ease}
+.dot{position:absolute;top:50%;width:8px;height:8px;padding:0;margin:0;border-radius:50%;background:var(--surface);border:2px solid var(--line);
+  transform:translate(-50%,-50%);z-index:1;cursor:pointer;transition:width .2s,height .2s,background-color .2s,border-color .2s}
+.dot.seen{background:var(--amber);border-color:var(--amber)}
+.dot.now{width:14px;height:14px;background:var(--amber);border:2.5px solid var(--ink)}
 .leg span{font-family:var(--f-display);font-weight:800;font-size:10px;letter-spacing:.06em;color:var(--muted);white-space:nowrap}
 .leg.now span{color:var(--ink)}
 
@@ -196,7 +200,7 @@ input[type=text]{font:inherit;width:100%;padding:12px 14px;border-radius:12px;bo
       <div class="where"><b>Dash Cam Drive Guide</b><span id="count"></span></div>
       <button class="theme" id="themeBtn" type="button"></button>
     </div>
-    <div class="route" id="route" aria-hidden="true"></div>
+    <nav class="route" id="route" aria-label="Cards"></nav>
   </header>
   <div class="pager" id="pager"><main id="view" aria-live="polite"></main><div class="peek" id="peek" aria-hidden="true" inert hidden></div></div>
 </div>
@@ -424,22 +428,32 @@ paintTheme();
 /* ---------- flow ---------- */
 const N_=CARDS.length,Q=QUIZ.length;
 const view=document.getElementById('view'),backBtn=document.getElementById('backBtn'),routeEl=document.getElementById('route');
-routeEl.innerHTML=LEGS.map(l=>`<div class="leg"><div class="rail"><i class="fill"></i><i class="stop"></i></div><span>${l}</span></div>`).join('');
 let step=0,qi=0,quizStarted=false,name='';
 const sel=Array(Q).fill(null),sub=Array(Q).fill(false),ok=Array(Q).fill(false);
+const seen=Array(N_+1).fill(false);   // seen[n]: card n has been opened (not just passed while dragging the strip)
 const nCorrect=()=>ok.filter(Boolean).length,allCorrect=()=>nCorrect()===Q;
 function nextTarget(from){for(let k=from+1;k<Q;k++)if(!ok[k])return k;for(let k=0;k<=from;k++)if(!ok[k])return k;return -1;}
 const inStage=g=>CARDS.filter(c=>c.g===g).length, before=(i)=>CARDS.slice(0,i).filter(c=>c.g===CARDS[i].g).length;
+const QUIZ_LEG=LEGS.length-1, units=g=>g===QUIZ_LEG?inStage(g)+1:inStage(g);   // the quiz leg: its card(s) plus room for the quiz
+/* one dot per card, spaced evenly inside its stage; dot k of n sits at k/n of the stage width */
+routeEl.style.gridTemplateColumns=LEGS.map((l,g)=>`minmax(44px,${units(g)}fr)`).join(' ');
+routeEl.innerHTML=LEGS.map((l,g)=>`<div class="leg"><div class="rail"><i class="fill"></i>${CARDS.map((c,i)=>c.g!==g?'':
+  `<button class="dot" type="button" data-n="${i+1}" style="left:calc(7px + ${100*before(i)/units(g)}%)" aria-label="Card ${i+1}: ${c.t}"></button>`).join('')}</div><span aria-hidden="true">${l}</span></div>`).join('');
+const DOTS=[...routeEl.querySelectorAll('.dot')];
 
 function progress(){
   let leg=-1,frac=0,label;
   if(step===0){label='About 7 minutes';}
-  else if(step<=N_){const c=CARDS[step-1];leg=c.g;frac=c.g===4?0.15:(before(step-1)+1)/inStage(c.g);label=`Card ${step} of ${N_}`;}
-  else if(step===N_+1){leg=4;frac=0.15+0.85*nCorrect()/Q;label=`Quiz · ${nCorrect()} of ${Q} correct`;}
-  else{leg=4;frac=1;label='Finished';}
+  else if(step<=N_){const c=CARDS[step-1];leg=c.g;frac=before(step-1)/units(c.g);label=`Card ${step} of ${N_}`;}
+  else if(step===N_+1){leg=QUIZ_LEG;frac=nCorrect()/Q;label=`Quiz · ${nCorrect()} of ${Q} correct`;}
+  else{leg=QUIZ_LEG;frac=1;label='Finished';}
   document.getElementById('count').textContent=label;
   [...routeEl.children].forEach((el,i)=>{el.classList.toggle('done',i<leg);el.classList.toggle('now',i===leg);
-    const f=i<leg?1:i===leg?frac:0;el.querySelector('.fill').style.width=i===4?`calc((100% - 14px) * ${f})`:`calc(100% * ${f})`;});
+    const f=i<leg?1:i===leg?frac:0;
+    // the quiz leg fills from its card dot to the end of the bar, by correct answers
+    el.querySelector('.fill').style.width=i===QUIZ_LEG&&step>N_?`calc((100% - 14px) * ${f})`:`calc(100% * ${f})`;});
+  DOTS.forEach(d=>{const n=+d.dataset.n;d.classList.toggle('now',n===step);d.classList.toggle('seen',seen[n]&&n!==step);
+    if(n===step)d.setAttribute('aria-current','step');else d.removeAttribute('aria-current');});
   backBtn.hidden=step===0;
 }
 function paint(html){view.innerHTML=DEFS+html;progress();const f=view.querySelector('[data-focus]');if(f)f.focus({preventScroll:true});}
@@ -519,6 +533,7 @@ function renderDone(){
 let shown=-1;
 function render(quiet,keep){   // keep = stay at the same scroll height (after a swipe)
   const was=shown; shown=step; view.classList.remove('inR','inL');
+  if(step>=1&&step<=N_&&!(rs&&rs.scrub))seen[step]=true;   // cards only passed while dragging the strip are not marked
   if(step===0)renderStart();else if(step<=N_)renderCard();else if(step===N_+1)renderQuiz();else if(step===N_+2)renderName();else renderDone();
   if(!keep)window.scrollTo({top:0});
   // slide in from the side the page came from. Start page and cards only: the quiz stays still.
@@ -579,6 +594,41 @@ document.getElementById('pager').addEventListener('touchend',()=>{
   swEnd(far||flick);
 },{passive:true});
 document.getElementById('pager').addEventListener('touchcancel',()=>swEnd(false),{passive:true});
+
+/* ---------- card dots in the progress bar: tap a dot, or drag along the strip, to open any card.
+   The dots are small, so the whole strip is the touch area: the dot nearest the finger is used.
+   Taps and the end of a drag open the card at its top. While dragging, the card changes as the finger passes each dot.
+   The quiz part of the bar has no dots: a touch there (further than HIT px from the last card dot) does nothing.
+   From the quiz, the name page or the finish page a dot still opens a card; quiz answers are kept,
+   and the last card's button leads back. ---------- */
+const HIT=16;
+let rs=null;
+function nearestDot(x){let best=null,bd=HIT;DOTS.forEach(d=>{const r=d.getBoundingClientRect(),dd=Math.abs(x-(r.left+r.width/2));if(dd<bd){bd=dd;best=+d.dataset.n;}});return best;}
+function openCard(n,quiet){if(n===null||n===step)return;if(sw)swEnd(false);step=n;render(quiet);}
+routeEl.addEventListener('pointerdown',e=>{
+  if(sw&&sw.hint)stopPageHint();         // pointer events come before the touchstart that stops the hint
+  if((sw&&sw.drag)||(e.pointerType==='mouse'&&e.button!==0)){rs=null;return;}
+  rs={id:e.pointerId,x:e.clientX,y:e.clientY,scrub:false};
+});
+routeEl.addEventListener('pointermove',e=>{
+  if(!rs||e.pointerId!==rs.id)return;
+  const dx=e.clientX-rs.x,dy=e.clientY-rs.y;
+  if(!rs.scrub){
+    if(Math.abs(dx)<8)return;
+    if(Math.abs(dx)<Math.abs(dy)){rs=null;return;}      // an up / down move: leave it to the page scroll
+    rs.scrub=true;try{routeEl.setPointerCapture(e.pointerId);}catch(_){}
+  }
+  openCard(nearestDot(e.clientX),true);
+});
+routeEl.addEventListener('pointerup',e=>{
+  if(!rs||e.pointerId!==rs.id)return;
+  const s=rs;rs=null;
+  if(s.scrub){if(step>=1&&step<=N_){seen[step]=true;progress();}}
+  else openCard(nearestDot(e.clientX),false);
+});
+routeEl.addEventListener('pointercancel',()=>{rs=null;if(step>=1&&step<=N_){seen[step]=true;progress();}});
+// keyboard: Tab to a dot, Enter or Space. (Pointer clicks are handled above; e.detail is 0 only for keyboard clicks.)
+DOTS.forEach(d=>d.addEventListener('click',e=>{if(e.detail===0)openCard(+d.dataset.n,false);}));
 
 /* ---------- page swipe hint: touch screens only, the first swipeable page opened in a visit (normally the start page).
    A hand drags the page sideways, the next card comes in beside it, then the page springs back. Any touch stops it. ---------- */
