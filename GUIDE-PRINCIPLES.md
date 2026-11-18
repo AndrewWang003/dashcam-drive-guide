@@ -205,7 +205,10 @@ Every guide has a text-size control at the top right, just left of the theme but
   - **On a computer, the only hint is the strip hint** (where a guide has a step strip that scrolls). Touch screens
     never get the strip hint.
 - **One backward control.** A second "back" that goes somewhere different confuses readers.
-- Left and right arrow keys change page on a computer.
+- Left and right arrow keys change page on a computer, like a swipe: they go only where a swipe may go.
+- **The phone's Back button (and the browser's) goes to the page the reader was on before.** Each page change adds a
+  browser history entry; an open enlarged picture closes first. Nothing is stored: after a reload the guide starts
+  from the page in the address, or the start page. On the guide's first page, Back leaves the guide.
 
 ## 7. Technology
 

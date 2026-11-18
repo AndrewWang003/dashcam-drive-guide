@@ -238,7 +238,7 @@ input[type=text]{font:inherit;width:100%;padding:12px 14px;border-radius:12px;bo
     </div>
     <nav class="route" id="route" aria-label="Cards"></nav>
   </header>
-  <div class="pager" id="pager"><main id="view" aria-live="polite"></main><div class="peek" id="peek" aria-hidden="true" inert hidden></div></div>
+  <div class="pager" id="pager"><main id="view"></main><div class="peek" id="peek" aria-hidden="true" inert hidden></div></div>
 </div>
 
 <script>
@@ -550,19 +550,19 @@ function renderQuiz(){
   paint(`<section class="card"><div class="qhead"><div class="stage">Question ${qi+1} of ${Q}</div><button class="reset" id="reset" type="button">Reset</button></div>
     <h1 class="q" tabindex="-1" data-focus>${q.q}</h1><div class="scene">${QS[qi]}</div>
     <p class="note" id="howto">Tap an answer, then tap Check answer.</p>
-    <div class="opts" role="radiogroup" aria-labelledby="howto">${q.o.map((t,k)=>`<button class="opt" type="button" role="radio" data-k="${k}">${t}</button>`).join('')}</div><div id="fb"></div></section>
+    <div class="opts" role="radiogroup" aria-labelledby="howto">${q.o.map((t,k)=>`<button class="opt" type="button" role="radio" data-k="${k}">${t}</button>`).join('')}</div><div id="fb" role="status" aria-live="polite"></div></section>
   <div class="nav"><button class="primary" id="next" type="button"></button></div>`);
-  const nx=document.getElementById('next'),rs=document.getElementById('reset'),fb=document.getElementById('fb');
+  const nx=document.getElementById('next'),resetBtn=document.getElementById('reset'),fb=document.getElementById('fb');
   function update(){
     view.querySelectorAll('.opt').forEach(x=>{const k=+x.dataset.k;x.classList.toggle('sel',sel[qi]===k&&!sub[qi]);x.classList.toggle('right',sub[qi]&&k===q.a);x.classList.toggle('wrong',sub[qi]&&k===sel[qi]&&k!==q.a);x.setAttribute('aria-checked',sel[qi]===k);x.disabled=sub[qi];});
     fb.innerHTML=!sub[qi]?'':ok[qi]?`<p class="fb ok"><b>Right.</b>${q.why}</p>`:`<p class="fb bad"><b>Not quite.</b>${q.why} Tap Reset to try again now, or go on and answer it again at the end.</p>`;
     if(!sub[qi]){nx.textContent='Check answer';nx.disabled=sel[qi]===null;}else{nx.disabled=false;nx.textContent=nextTarget(qi)===-1?'Finish':'Next question';}
-    rs.hidden=sel[qi]===null&&!sub[qi];rs.classList.toggle('alert',sub[qi]&&!ok[qi]);progress();
+    resetBtn.hidden=sel[qi]===null&&!sub[qi];resetBtn.classList.toggle('alert',sub[qi]&&!ok[qi]);progress();
   }
   view.querySelectorAll('.opt').forEach(b=>b.onclick=()=>{if(sub[qi])return;sel[qi]=+b.dataset.k;update();});
   nx.onclick=()=>{if(!sub[qi]){if(sel[qi]===null)return;sub[qi]=true;ok[qi]=sel[qi]===q.a;update();nx.focus();return;}
     const t=nextTarget(qi);if(t===-1){step=N_+2;render();return;}qi=t;if(sub[qi]&&!ok[qi]){sub[qi]=false;sel[qi]=null;}render();};
-  rs.onclick=()=>{sel[qi]=null;sub[qi]=false;ok[qi]=false;update();};
+  resetBtn.onclick=()=>{sel[qi]=null;sub[qi]=false;ok[qi]=false;update();};
   update();
 }
 function renderName(){
@@ -580,10 +580,34 @@ function renderDone(){
     <p class="lead"><strong>Take a screenshot of this card and send it to your supervisor.</strong></p><p class="note">This page does not send anything by itself.</p></section>`);
   document.getElementById('who').textContent=name;
 }
-let shown=-1;
+let shown=-1,fromHistory=false;
+/* Browser history: every page change adds an entry, so the phone's Back button (or the browser's) goes to the page
+   before. Nothing is stored: after a reload the guide starts again, and an old entry for the quiz or the finish
+   opens the last card if the quiz has not been started in this visit. While dragging the card dots, only the card
+   where the drag ends gets its own entry. */
+function remember(){
+  if(fromHistory)return;
+  const st={guide:'dashcam',step,qi},h=history.state;
+  if(h&&h.guide==='dashcam'&&h.step===step&&(step!==N_+1||h.qi===qi))return;   // same page: no new entry
+  try{
+    if(shown<0||(dotDrag&&dotDrag.scrub&&dotDrag.pushed))history.replaceState(st,'');
+    else{history.pushState(st,'');if(dotDrag&&dotDrag.scrub)dotDrag.pushed=true;}
+  }catch(_){}                                          // some embedded viewers do not allow history: the guide still works
+}
+addEventListener('popstate',e=>{
+  const st=e.state;if(!st||st.guide!=='dashcam')return;
+  stopPageHint();if(sw)swEnd(false);
+  let to=st.step;
+  if(to>N_&&!quizStarted)to=N_;                       // quiz state is not kept across a reload
+  if(to===N_+1&&typeof st.qi==='number')qi=st.qi;
+  if(to===N_+2&&!allCorrect())to=N_+1;
+  if(to===N_+3&&!name)to=allCorrect()?N_+2:N_+1;
+  step=to;fromHistory=true;try{render();}finally{fromHistory=false;}
+});
 function render(quiet,keep){   // keep = stay at the same scroll height (after a swipe)
+  remember();
   const was=shown; shown=step; view.classList.remove('inR','inL');
-  if(step>=1&&step<=N_&&!(rs&&rs.scrub))seen[step]=true;   // cards only passed while dragging the strip are not marked
+  if(step>=1&&step<=N_&&!(dotDrag&&dotDrag.scrub))seen[step]=true;   // cards only passed while dragging the strip are not marked
   if(step===0)renderStart();else if(step<=N_)renderCard();else if(step===N_+1)renderQuiz();else if(step===N_+2)renderName();else renderDone();
   if(!keep)window.scrollTo({top:0});
   // slide in from the side the page came from. Start page and cards only: the quiz stays still.
@@ -652,7 +676,7 @@ document.getElementById('pager').addEventListener('touchcancel',()=>swEnd(false)
    The quiz dot is disabled until the quiz has started (by the last card's button). After that it goes back to where the
    driver left the quiz: the same question (answers are kept), or the name / finish page. ---------- */
 const HIT=16;
-let rs=null;
+let dotDrag=null;
 function nearestDot(x){let best=null,bd=HIT;DOTS.forEach(d=>{if(d.disabled)return;const r=d.getBoundingClientRect(),dd=Math.abs(x-(r.left+r.width/2));if(dd<bd){bd=dd;best=+d.dataset.n;}});return best;}
 function openCard(n,quiet){      // n = card number, or QUIZ_DOT
   if(n===null)return;
@@ -665,26 +689,26 @@ function openCard(n,quiet){      // n = card number, or QUIZ_DOT
 }
 routeEl.addEventListener('pointerdown',e=>{
   if(sw&&sw.hint)stopPageHint();         // pointer events come before the touchstart that stops the hint
-  if((sw&&sw.drag)||(e.pointerType==='mouse'&&e.button!==0)){rs=null;return;}
-  rs={id:e.pointerId,x:e.clientX,y:e.clientY,scrub:false};
+  if((sw&&sw.drag)||(e.pointerType==='mouse'&&e.button!==0)){dotDrag=null;return;}
+  dotDrag={id:e.pointerId,x:e.clientX,y:e.clientY,scrub:false};
 });
 routeEl.addEventListener('pointermove',e=>{
-  if(!rs||e.pointerId!==rs.id)return;
-  const dx=e.clientX-rs.x,dy=e.clientY-rs.y;
-  if(!rs.scrub){
+  if(!dotDrag||e.pointerId!==dotDrag.id)return;
+  const dx=e.clientX-dotDrag.x,dy=e.clientY-dotDrag.y;
+  if(!dotDrag.scrub){
     if(Math.abs(dx)<8)return;
-    if(Math.abs(dx)<Math.abs(dy)){rs=null;return;}      // an up / down move: leave it to the page scroll
-    rs.scrub=true;try{routeEl.setPointerCapture(e.pointerId);}catch(_){}
+    if(Math.abs(dx)<Math.abs(dy)){dotDrag=null;return;}      // an up / down move: leave it to the page scroll
+    dotDrag.scrub=true;try{routeEl.setPointerCapture(e.pointerId);}catch(_){}
   }
   openCard(nearestDot(e.clientX),true);
 });
 routeEl.addEventListener('pointerup',e=>{
-  if(!rs||e.pointerId!==rs.id)return;
-  const s=rs;rs=null;
+  if(!dotDrag||e.pointerId!==dotDrag.id)return;
+  const s=dotDrag;dotDrag=null;
   if(s.scrub){if(step>=1&&step<=N_){seen[step]=true;progress();}}
   else openCard(nearestDot(e.clientX),false);
 });
-routeEl.addEventListener('pointercancel',()=>{rs=null;if(step>=1&&step<=N_){seen[step]=true;progress();}});
+routeEl.addEventListener('pointercancel',()=>{dotDrag=null;if(step>=1&&step<=N_){seen[step]=true;progress();}});
 // The tap above already opened the card and scrolled to the top. Cancel the browser's follow-up click, or it can land
 // on whatever is now under the finger (the Back button) and go one page back.
 routeEl.addEventListener('touchend',e=>{if(e.cancelable)e.preventDefault();},{passive:false});
@@ -727,6 +751,15 @@ function pageHint(){
   },700);
 }
 window.addEventListener('touchstart',()=>{if(phT||phRaf)stopPageHint();},{capture:true,passive:true});
+
+/* ---------- keyboard: left / right arrows change card, like a swipe (start page and cards only) ---------- */
+document.addEventListener('keydown',e=>{
+  if(e.altKey||e.ctrlKey||e.metaKey||e.shiftKey||(e.key!=='ArrowRight'&&e.key!=='ArrowLeft'))return;
+  if(step>N_||/^(INPUT|TEXTAREA|SELECT)$/.test((document.activeElement||{}).tagName||''))return;
+  const to=e.key==='ArrowRight'?(step<N_?step+1:null):(step>0?step-1:null);
+  if(to===null)return;
+  e.preventDefault();if(sw)swEnd(false);step=to;render();
+});
 
 render();
 })();

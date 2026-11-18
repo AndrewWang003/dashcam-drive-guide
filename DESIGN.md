@@ -300,6 +300,16 @@ Do not reorder them, reword them, or add a fifth without the owner's decision.
   - **All cards can be opened, also ones not read yet.** This adds no new skip: a swipe could already reach the last card, and the quiz still checks the rules.
   - **Back** still goes one page back in card order, not to the card the driver jumped from.
   - Keyboard: each dot is a button ("Card 3: Camera setup", "Quiz: back to where you were"); Enter or Space opens it.
+- **Arrow keys** (computer): right = next, left = previous, on the start page and the cards, the same as a swipe. The
+  last card does not go into the quiz, and the keys do nothing in the quiz, the name page and the finish page.
+- **Phone / browser Back button** (GUIDE-PRINCIPLES.md 6): goes to the page visited before, which can differ from
+  the `Back` button after a jump with the card dots (`Back` = one page back in card order). Quiz questions each get an
+  entry; answers and the typed name are kept. A drag along the dots adds one entry, for the card where it ends.
+  After a reload the guide starts again (nothing is stored); an older entry for the quiz or the finish then opens
+  the last card, because the quiz has not been started in this visit.
+- **Screen readers:** the page area is not a live region. Each page change moves focus to the page title, which is
+  read once (it used to read the whole card, picture descriptions too, sometimes twice). The quiz answer feedback has
+  its own live region (`role="status"`), so "Correct" / "Not quite" is still read out after Check answer.
   - No hint teaches the dots (none was asked for).
 - **Quiz:** tap an answer to select it, then tap **Check answer**. This two-step design prevents accidental taps. Feedback shows right/wrong with a one-line reason. Wrong questions **come back at the end** until all are right. **Reset** sits top-right of the quiz and turns coral after a wrong answer. **Back** goes to the previous question, it does not restart the quiz.
 - **Quiz pictures set the scene and never show the answer.**
