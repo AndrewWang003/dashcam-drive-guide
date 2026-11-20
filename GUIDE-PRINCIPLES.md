@@ -214,6 +214,12 @@ Every guide has a text-size control at the top right, just left of the theme but
 
 - **One self-contained `index.html`** per guide: style, markup and one script. No build step, no framework.
 - Content is data near the top of the script (cards or steps, quiz, Help). Change content there, not in markup.
+- **Shared code.** Code that every guide has (colour tokens and base rules, fonts, theme switch, swipe hint, text
+  size) sits between markers in `index.html`: `/* SHARED:name */ … /* /SHARED:name */` (or `<!-- … -->` in markup).
+  It must be the same in every guide. Change it in one guide, then run `python3 tools/shared.py copy ../other-guide`,
+  test both, and commit both. `python3 tools/shared.py check ../other-guide` reports any difference.
+- Class names say what they belong to (`demo-on`, `plug-lead`, `tsz-on`), so two parts of a page never clash. Code
+  that clears classes only touches its own part of the page.
 - Image files, if any, live in `img/`. Nothing else loads from outside except the Google Fonts stylesheet.
 - **No browser storage** (`localStorage`, `sessionStorage`, cookies). Choices last for the current visit only.
 - No network calls, no analytics, nothing sent anywhere.
@@ -250,3 +256,4 @@ The repositories are public.
 - [ ] Walk the whole flow from the start page to the end, with no console errors.
 - [ ] No browser storage, no network calls besides fonts.
 - [ ] `DESIGN.md`, `README.md` and this file still describe the page.
+- [ ] `python3 tools/shared.py check ../other-guide` says all shared parts are the same.

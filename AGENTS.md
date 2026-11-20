@@ -12,8 +12,9 @@ Read [`GUIDE-PRINCIPLES.md`](GUIDE-PRINCIPLES.md) (shared by all Matrix guides),
    right-hand drive. No image files, icon fonts or libraries.
 6. **Stay inside the task.** Explain the problem, how the page works now, and what your change alters, before you
    change it.
-7. **Shared rules live in GUIDE-PRINCIPLES.md**, and the same file is in every guide repository. If you change a
-   shared rule, change it in all of them in the same piece of work.
+7. **Shared rules live in GUIDE-PRINCIPLES.md**, and the same file is in every guide repository. Code shared by
+   all guides sits between `SHARED:` markers in `index.html`. If you change a shared rule or shared code, change it in
+   all guides in the same piece of work: `python3 tools/shared.py copy ../other-guide`, then `check`.
 8. **Report honestly.** Say what you tested, what you only reasoned about, and what you could not test. Use the
    checklists in DESIGN.md and GUIDE-PRINCIPLES.md.
 9. **Keep the docs true.** If you change structure, behaviour or a rule, update DESIGN.md in the same commit.

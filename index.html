@@ -5,36 +5,51 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="description" content="Rules and a short quiz for dash cam road survey drivers.">
 <title>Dash Cam Drive Guide</title>
+<!-- SHARED:fonts -->
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Overpass:wght@600;800&family=Overpass+Mono:wght@600&family=Atkinson+Hyperlegible:wght@400;700&display=swap">
+<!-- /SHARED:fonts -->
 <style>
-:root{--fs:1}
-header,.phint{--fs:1}   /* text that keeps its size: top bar, pictures, hints */
-/* Layout: one narrow column, one card at a time. Top bar: Back, route progress with five stops, theme switch.
-   Pictures: flat shapes, no outlines, one palette (navy, cream, amber, coral, sage). Coral = attention, amber = action, sage = correct. */
+/* SHARED:tokens */
+/* Colour tokens, fonts and base rules: the same in every Matrix guide (GUIDE-PRINCIPLES.md 4.1, 4.2; tools/shared.py).
+   --fs = text size (4.8). A guide's own tokens come after this block. */
 :root{
-  --bg:#F6F1E7; --surface:#FFFDF8; --ink:#141B3C; --muted:#5B6078; --line:#E2D9C8;
+  --fs:1;
+  --bg:#F6F1E7; --surface:#FFFDF8; --ink:#141B3C; --muted:#5B6078; --line:#E2D9C8; --tint:#EFE7D7;
   --brand:#F2A93B; --brand-ink:#141B3C; --amber:#F2A93B; --coral:#D94A22; --sage:#5E8F88;
-  --ok-bg:#E4EFEC; --bad-bg:#FBE7E0; --scene-edge:transparent;
+  --ok-bg:#E4EFEC; --bad-bg:#FBE7E0;
   --f-display:"Overpass","Arial Narrow",Arial,sans-serif;
   --f-body:"Atkinson Hyperlegible","Segoe UI",Roboto,Arial,sans-serif;
   --f-mono:"Overpass Mono",ui-monospace,Menlo,Consolas,monospace;
 }
 @media (prefers-color-scheme: dark){ :root:not([data-theme="light"]){
-  --bg:#0E1228; --surface:#171D3A; --ink:#F3EBDD; --muted:#A9AEC6; --line:#2B3359;
+  --bg:#0E1228; --surface:#171D3A; --ink:#F3EBDD; --muted:#A9AEC6; --line:#2B3359; --tint:#1F2647;
   --brand:#F2A93B; --brand-ink:#141B3C; --coral:#FF7A52; --sage:#7DB3AB;
-  --ok-bg:#1C3537; --bad-bg:#3D2320; --scene-edge:#2B3359; color-scheme:dark }}
+  --ok-bg:#1C3537; --bad-bg:#3D2320; color-scheme:dark }}
 :root[data-theme="dark"]{
-  --bg:#0E1228; --surface:#171D3A; --ink:#F3EBDD; --muted:#A9AEC6; --line:#2B3359;
+  --bg:#0E1228; --surface:#171D3A; --ink:#F3EBDD; --muted:#A9AEC6; --line:#2B3359; --tint:#1F2647;
   --brand:#F2A93B; --brand-ink:#141B3C; --coral:#FF7A52; --sage:#7DB3AB;
-  --ok-bg:#1C3537; --bad-bg:#3D2320; --scene-edge:#2B3359; color-scheme:dark }
-
+  --ok-bg:#1C3537; --bad-bg:#3D2320; color-scheme:dark }
 *{box-sizing:border-box}
+[hidden]{display:none!important}
+button:focus-visible,a:focus-visible,input:focus-visible{outline:3px solid var(--amber);outline-offset:2px}
+/* /SHARED:tokens */
+header,.phint{--fs:1}   /* text that keeps its size: top bar, pictures, hints */
+/* Layout: one narrow column, one card at a time. Top bar: Back, title, text size, theme switch; below it the progress bar
+   with one dot per card and the quiz.
+   Pictures: flat shapes, no outlines, one palette (navy, cream, amber, coral, sage). Coral = attention, amber = action, sage = correct. */
+:root{   /* Dash Cam's own tokens */
+  --scene-edge:transparent;   /* the picture edge, visible only at night */
+  --scene-bg:#F3EBDD;         /* picture background (cream), the same in both modes */
+  --amber-soft:rgba(242,169,59,.16); --amber-halo:rgba(242,169,59,.35);
+}
+@media (prefers-color-scheme: dark){ :root:not([data-theme="light"]){ --scene-edge:#2B3359 }}
+:root[data-theme="dark"]{ --scene-edge:#2B3359 }
+
 :root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
 body{margin:0}
 img{max-width:100%}
-[hidden]{display:none!important}
 body{background:var(--bg);color:var(--ink);font-family:var(--f-body);font-size:calc(17px * var(--fs));line-height:1.5;
   padding-left:max(16px, env(safe-area-inset-left, 0px));padding-right:max(16px, env(safe-area-inset-right, 0px));padding-block:14px 32px}
 .wrap{max-width:560px;margin:0 auto;display:flex;flex-direction:column;gap:14px}
@@ -45,6 +60,8 @@ body{background:var(--bg);color:var(--ink);font-family:var(--f-body);font-size:c
 #view{touch-action:pan-y pinch-zoom}
 .peek{position:absolute;left:0;top:0;width:100%;pointer-events:none}
 /* page swipe hint (touch screens, first card of a visit): a hand drags the page sideways and it springs back */
+/* SHARED:swipe-hint-css */
+/* the page swipe hint: a thumb that drags the page, with a caption (GUIDE-PRINCIPLES.md 6) */
 .phint .cn{fill:var(--brand-ink);opacity:.16}
 .phint{position:fixed;left:0;top:0;width:0;height:0;z-index:6;pointer-events:none;opacity:0;transition:opacity .25s}
 .phint.on{opacity:1}
@@ -54,13 +71,13 @@ body{background:var(--bg);color:var(--ink);font-family:var(--f-body);font-size:c
 .phint .co{fill:var(--brand-ink)} .phint .cf{fill:var(--amber)} .phint .cl{fill:var(--brand-ink);opacity:.45}
 .phint .phcap{position:absolute;left:0;top:-54px;transform:translateX(-50%);white-space:nowrap;background:var(--brand);color:var(--brand-ink);
   border-radius:999px;padding:8px 14px 6px;font-family:var(--f-display);font-weight:800;font-size:calc(15px * var(--fs))}
+/* /SHARED:swipe-hint-css */
 /* Next / Back buttons: the new page slides in from the side it came from */
 #view.inR{animation:inR .22s ease-out}
 #view.inL{animation:inL .22s ease-out}
 @keyframes inR{from{transform:translateX(30px);opacity:.25}}
 @keyframes inL{from{transform:translateX(-30px);opacity:.25}}
 button{font:inherit}
-button:focus-visible,input:focus-visible{outline:3px solid var(--amber);outline-offset:2px}
 
 /* top bar */
 .bar{display:flex;align-items:center;gap:10px;min-height:44px}
@@ -85,7 +102,7 @@ button:focus-visible,input:focus-visible{outline:3px solid var(--amber);outline-
 .dot.seen{background:var(--amber);border-color:var(--amber)}
 .dot.key{width:13px;height:13px;border-width:2.5px}
 .dot.key.seen{border-color:var(--ink)}
-.dot.now{width:16px;height:16px;background:var(--amber);border:2.5px solid var(--ink);box-shadow:0 0 0 3px rgba(242,169,59,.35);z-index:2}
+.dot.now{width:16px;height:16px;background:var(--amber);border:2.5px solid var(--ink);box-shadow:0 0 0 3px var(--amber-halo);z-index:2}
 .dot:disabled{cursor:default}
 .route .labels{position:relative;height:14px;margin-top:4px}
 .route .labels span{position:absolute;top:0;left:0;font-family:var(--f-display);font-weight:800;font-size:calc(10px * var(--fs));line-height:14px;letter-spacing:.06em;color:var(--muted);white-space:nowrap}
@@ -97,7 +114,7 @@ button:focus-visible,input:focus-visible{outline:3px solid var(--amber);outline-
 h1{margin:0;font-family:var(--f-display);font-weight:800;font-size:calc(29px * var(--fs));line-height:1.1;text-wrap:balance}
 h1:focus{outline:none}
 h1.q{font-size:calc(23px * var(--fs));line-height:1.2}
-.scene{border-radius:14px;overflow:hidden;background:#F3EBDD;box-shadow:0 0 0 1px var(--scene-edge)}
+.scene{border-radius:14px;overflow:hidden;background:var(--scene-bg);box-shadow:0 0 0 1px var(--scene-edge)}
 .scene svg{display:block;width:100%;height:auto}
 .lead{margin:0;font-size:calc(18px * var(--fs))}
 ul.pts{margin:0;padding:0;list-style:none;display:flex;flex-direction:column;gap:10px}
@@ -134,7 +151,7 @@ ul.pts li::before{content:"";position:absolute;left:2px;top:.55em;width:12px;hei
 .opts{display:flex;flex-direction:column;gap:10px}
 .opt{text-align:left;cursor:pointer;background:var(--bg);color:var(--ink);border:2px solid var(--line);border-radius:12px;padding:14px 16px;line-height:1.35}
 .opt:disabled{cursor:default}
-.opt.sel{border-color:var(--amber);box-shadow:inset 0 0 0 2px var(--amber);background:rgba(242,169,59,.16);font-weight:700}
+.opt.sel{border-color:var(--amber);box-shadow:inset 0 0 0 2px var(--amber);background:var(--amber-soft);font-weight:700}
 .opt.right{border-color:var(--sage);background:var(--ok-bg)}
 .opt.wrong{border-color:var(--coral);background:var(--bad-bg)}
 .fb{border-radius:12px;padding:12px 14px;margin:0}
@@ -157,7 +174,7 @@ input[type=text]{font:inherit;width:100%;padding:12px 14px;border-radius:12px;bo
 @keyframes spin{to{transform:rotate(360deg)}}
 .wheel{transform-box:fill-box;transform-origin:center;animation:spin .7s linear infinite}
 .still .wheel{animation:none}
-.hand{animation:spin 8s linear infinite}
+.clock-hand{animation:spin 8s linear infinite}
 @keyframes drift{from{transform:translateX(-60px)}to{transform:translateX(420px)}} .drift{animation:drift 38s linear infinite}
 @keyframes pop{0%,8%{transform:scale(0);opacity:0}20%{transform:scale(1.1);opacity:1}28%,86%{transform:scale(1);opacity:1}100%{transform:scale(1);opacity:0}}
 .pop{transform-box:fill-box;transform-origin:center;animation:pop 3.6s ease-out infinite}
@@ -187,15 +204,17 @@ input[type=text]{font:inherit;width:100%;padding:12px 14px;border-radius:12px;bo
 @keyframes finish{0%,64%{opacity:0;transform:scale(.6)}70%,96%{opacity:1;transform:scale(1)}100%{opacity:0}}
 .finish{transform-box:fill-box;transform-origin:center bottom;animation:finish 8s ease-out infinite}
 [data-start="A"] .forB,[data-start="B"] .forA{display:none}
-/* plug system: s=0 nothing connected, s=1 cameras in adapter, s=2 adapter in car (recording) */
-.camplugs,.carplug,.lead{transition:transform .55s cubic-bezier(.3,1.25,.5,1)}
-.lead{transform-box:view-box;transform-origin:176px 155px}
-[data-s="2"] .lead{transform:scaleY(1.889)}
+/* plug system (picture classes start with plug-, so they never clash with page classes such as .lead or .on):
+   s=0 nothing connected, s=1 cameras in adapter, s=2 adapter in car (recording) */
+.camplugs,.carplug,.plug-lead{transition:transform .55s cubic-bezier(.3,1.25,.5,1)}
+.plug-lead{transform-box:view-box;transform-origin:176px 155px}
+[data-s="2"] .plug-lead{transform:scaleY(1.889)}
 [data-s="1"] .camplugs,[data-s="2"] .camplugs{transform:translateY(12px)}
 [data-s="2"] .carplug{transform:translateY(16px)}
-.on{opacity:0;transition:opacity .3s .45s} [data-s="2"] .on{opacity:1}
-.off{transition:opacity .2s .4s} [data-s="2"] .off{opacity:0}
+.plug-on{opacity:0;transition:opacity .3s .45s} [data-s="2"] .plug-on{opacity:1}
+.plug-off{transition:opacity .2s .4s} [data-s="2"] .plug-off{opacity:0}
 
+/* SHARED:textsize-css */
 /* text size (shared by all guides): "Aa" opens a small panel: A− / four dots / A+. Sizes 90, 100 (default), 115, 130 %.
    Every text size on the page is calc(Npx * var(--fs)). The top bar, pictures, marks on pictures and hints keep --fs:1.
    Not remembered: each visit starts at 100 %. */
@@ -216,6 +235,7 @@ input[type=text]{font:inherit;width:100%;padding:12px 14px;border-radius:12px;bo
 .tszd i{width:8px;height:8px;border-radius:50%;background:var(--line)}
 .tszd i.tsz-on{width:12px;height:12px;background:var(--amber)}
 .tszl{position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap}
+/* /SHARED:textsize-css */
 </style>
 </head>
 <body>
@@ -225,7 +245,7 @@ input[type=text]{font:inherit;width:100%;padding:12px 14px;border-radius:12px;bo
     <div class="bar">
       <button class="back" id="backBtn" hidden aria-label="Go back one page"><svg viewBox="0 0 14 14" aria-hidden="true"><path d="M9 2 L4 7 L9 12" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg>Back</button>
       <div class="where"><b>Dash Cam Drive Guide</b><span id="count"></span></div>
-      <div class="tsz" id="tsz">
+      <!-- SHARED:textsize-html --><div class="tsz" id="tsz">
         <button class="tszbtn" type="button" aria-expanded="false" aria-controls="tszp" aria-label="Text size" title="Text size"><span aria-hidden="true">A<small>a</small></span></button>
         <div class="tszp" id="tszp" role="group" aria-label="Text size" hidden>
           <button class="dn" type="button" aria-label="Smaller text">A−</button>
@@ -233,7 +253,7 @@ input[type=text]{font:inherit;width:100%;padding:12px 14px;border-radius:12px;bo
           <button class="up" type="button" aria-label="Larger text">A+</button>
           <span class="tszl" aria-live="polite"></span>
         </div>
-      </div>
+      </div><!-- /SHARED:textsize-html -->
       <button class="theme" id="themeBtn" type="button"></button>
     </div>
     <nav class="route" id="route" aria-label="Cards"></nav>
@@ -243,191 +263,45 @@ input[type=text]{font:inherit;width:100%;padding:12px 14px;border-radius:12px;bo
 
 <script>
 (function(){
-/* ---------- palette + drawing helpers ---------- */
-const N='#141B3C',N2='#33407A',N3='#232B52',NK='#0A0E22',CR='#F3EBDD',W='#FFFDF8',AM='#F2A93B',AM2='#DB932A',CO='#E4572E',CO2='#C4441F',SG='#5E8F88',SK='#DCE9E8',SK2='#C9DBD8',SD='#D8C9AE',SD2='#C4B393',SD3='#BCA988',GY='#B8BCC8',MT='#B9CFCB';
-const R=(x,y,w,h,rx,f,e='')=>`<rect x="${x}" y="${y}" width="${w}" height="${h}" rx="${rx}" fill="${f}" ${e}/>`;
-const C=(cx,cy,r,f,e='')=>`<circle cx="${cx}" cy="${cy}" r="${r}" fill="${f}" ${e}/>`;
-const T=(x,y,s,t,f=N,mono=0,a='middle')=>`<text x="${x}" y="${y}" text-anchor="${a}" font-family="${mono?'Overpass Mono, monospace':'Overpass, Arial, sans-serif'}" font-weight="${mono?600:800}" font-size="${s}" fill="${f}">${t}</text>`;
-const svg=(label,inner,h=220)=>`<svg viewBox="0 0 360 ${h}" role="img" aria-label="${label}">${inner}</svg>`;
-const check=(x,y,r=9)=>`<g>${C(x,y,r,SG)}<path d="M${x-r*.45} ${y} L${x-r*.1} ${y+r*.36} L${x+r*.5} ${y-r*.36}" fill="none" stroke="${W}" stroke-width="${r*.28}" stroke-linecap="round" stroke-linejoin="round"/></g>`;
-const no=(cx,cy,r)=>`<g><circle cx="${cx}" cy="${cy}" r="${r}" fill="none" stroke="${CO}" stroke-width="6"/><line x1="${cx-r*.7}" y1="${cy-r*.7}" x2="${cx+r*.7}" y2="${cy+r*.7}" stroke="${CO}" stroke-width="6" stroke-linecap="round"/></g>`;
-const qmark=(x,y)=>`<g class="pop" style="animation-duration:3s">${C(x,y,17,W)}${T(x,y+8,23,'?',CO)}</g>`;
-const arc=(cx,cy,r,a0,a1,col,w=7)=>{const p=a=>[cx+r*Math.cos(a*Math.PI/180),cy+r*Math.sin(a*Math.PI/180)].map(v=>v.toFixed(1)).join(' ');return `<path d="M${p(a0)} A${r} ${r} 0 0 1 ${p(a1)}" fill="none" stroke="${col}" stroke-width="${w}" stroke-linecap="round"/>`;};
-const carSym=(id,body,shade,cams,spin=1)=>`<symbol id="${id}" viewBox="0 0 204 98"><ellipse cx="102" cy="92" rx="94" ry="5" fill="${NK}" opacity=".28"/>
-  <path d="M10 72 L10 50 Q10 42 18 41 L36 38 L54 18 Q58 12 68 12 L124 12 Q132 12 138 18 L158 40 L182 44 Q194 46 194 58 L194 72 Q194 76 190 76 L14 76 Q10 76 10 72 Z" fill="${body}"/>
-  <path d="M10 62 L194 62 L194 72 Q194 76 190 76 L14 76 Q10 76 10 72 Z" fill="${shade}"/>
-  <path d="M60 21 L47 38 L92 38 L92 20 L63 20 Q61 20 60 21 Z" fill="#D5E6E4"/><path d="M98 20 L98 38 L151 38 L135 22 Q133 20 130 20 Z" fill="#D5E6E4"/>
-  <path d="M108 20 L120 20 L106 38 L98 38 L98 33 Z" fill="#FFFFFF" opacity=".55"/>
-  ${cams?R(121,21.5,10,6,2,N2)+R(125,21.5,10,6,2,N)+C(134,24.5,1.6,AM):''}
-  <rect x="94.2" y="20" width="1.6" height="40" fill="${N}" opacity=".22"/>${R(104,45,11,3,1.5,N,'opacity=".45"')}${R(62,45,11,3,1.5,N,'opacity=".45"')}
-  ${R(185,50,9,7,2.5,AM)}${R(10,47,5,9,2,'#8F2A14')}
-  ${[48,154].map(cx=>C(cx,76,15,N)+C(cx,76,7,CR)+`<g class="${spin?'wheel':''}">${R(cx-7,75,14,2,0,N)}${R(cx-1,69,2,14,0,N)}</g>`+C(cx,76,2.2,N)).join('')}</symbol>`;
-const DEFS=`<svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs>${carSym('car',CO,CO2,1)}${carSym('carB',SG,'#4C7A73',0)}${carSym('carC',N2,'#2A3567',0)}${carSym('carS',CO,CO2,1,0)}${carSym('carBS',SG,'#4C7A73',0,0)}</defs></svg>`;
-const use=(id,x,y,w,cls='')=>`<g class="${cls}"><use href="#${id}" x="${x}" y="${y}" width="${w}" height="${w*98/204}"/></g>`;
-/* outside world: cream sky, sun, hills, road */
-const outside=(ry=156,sun=1)=>`${R(0,0,360,220,0,CR)}${sun?C(284,56,30,'#F7D9A0'):''}<path d="M0 ${ry-14} Q60 ${ry-44} 130 ${ry-24} T260 ${ry-32} T360 ${ry-22} L360 ${ry+4} L0 ${ry+4}Z" fill="#E6D8BF"/>${R(0,ry,360,220-ry,0,N)}${R(0,ry,360,3,0,'#2A3567')}`;
-const lane=(y,cls='')=>`<line x1="-50" y1="${y}" x2="410" y2="${y}" stroke="${AM}" stroke-width="4" stroke-linecap="round" stroke-dasharray="28 18" class="${cls}"/>`;
-/* driver's seat view (right-hand drive): windscreen, mirror, pillars, dashboard, wheel */
-const cabin=(drive)=>`${R(0,0,360,220,0,SK)}<path d="M0 100 Q90 78 180 90 T360 84 L360 142 L0 142Z" fill="${SK2}"/>
-  <path d="M36 142 L168 84 L192 84 L324 142Z" fill="${N}"/><path d="M36 142 L168 84 M324 142 L192 84" stroke="${CR}" stroke-width="2" opacity=".55" fill="none"/>
-  <line x1="180" y1="87" x2="180" y2="142" stroke="${AM}" stroke-width="3" stroke-dasharray="8 7" class="${drive?'lanev':''}"/>
-  ${R(0,0,360,9,0,N)}<path d="M0 0 L24 0 L8 142 L0 142Z" fill="${N}"/><path d="M360 0 L336 0 L352 142 L360 142Z" fill="${N}"/>
-  ${R(176,0,8,14,0,N)}${R(132,12,96,30,10,N)}${R(137,17,86,20,6,'#9FBDB9')}<path d="M150 17 L166 17 L154 37 L138 37 Z" fill="${W}" opacity=".35"/>
-  <path d="M0 142 Q180 136 360 142 L360 220 L0 220Z" fill="${SD}"/><path d="M0 142 Q180 136 360 142 L360 147 Q180 141 0 147Z" fill="${SD2}"/>
-  <rect x="18" y="160" width="56" height="32" rx="7" fill="none" stroke="${SD2}" stroke-width="2.5"/>${R(38,172,16,4,2,SD2)}
-  ${R(150,182,26,13,4,SD2)}${R(184,182,26,13,4,SD2)}${[0,1,2].map(i=>R(153,185+i*3.4,20,1.4,.7,N,'opacity=".35"')+R(187,185+i*3.4,20,1.4,.7,N,'opacity=".35"')).join('')}${R(150,200,60,20,5,N3)}${R(156,205,22,4,2,MT)}${R(156,212,34,3,1.5,GY,'opacity=".6"')}
-  <path d="M230 152 Q292 116 354 152 L354 164 L230 164Z" fill="${N3}"/>${arc(268,158,13,200,340,CR,2.5)}${arc(316,158,13,200,340,CR,2.5)}<path d="M268 158 L261 149 M316 158 L324 150" stroke="${CO}" stroke-width="2.2" stroke-linecap="round" fill="none"/>${C(268,158,2,CR)}${C(316,158,2,CR)}
-  <path d="M292 236 L236 222 M292 236 L348 222" stroke="${N}" stroke-width="10" stroke-linecap="round"/><circle cx="292" cy="236" r="62" fill="none" stroke="${N}" stroke-width="13"/>${C(292,236,21,N)}`;
-const camBody=(x,cls='')=>`<g class="${cls}">${R(x+16,6,8,10,0,N)}${R(x,14,40,28,7,N)}${R(x+5,19,30,18,4,N3)}</g>`;
-const camRec=(x)=>`${R(x+5,19,30,18,4,N2)}${C(x+13,28,3.4,CO,'class="blink"')}${R(x+19,26,12,4,2,CR)}`;
-const zoomRec=()=>`<line x1="270" y1="42" x2="292" y2="66" stroke="${N}" stroke-width="2.5" stroke-linecap="round"/>${C(306,92,35,W)}<circle cx="306" cy="92" r="35" fill="none" stroke="${N}" stroke-width="3"/>${R(279,76,54,32,7,N2)}${C(292,92,5.5,CO,'class="blink"')}${T(315,97,13,'REC',CR,1)}`;
-/* cams: 'dual' = off layer + on layer for the plug scenes, 'q' = question marks on the screens */
-const cams=(mode)=>camBody(84)+camBody(236)+(mode==='dual'?`<g class="on">${camRec(84)}${camRec(236)}${check(84,42,8.5)}${check(236,42,8.5)}${zoomRec()}</g>`:mode==='q'?T(104,34,15,'?',AM)+T(256,34,15,'?',AM):'');
-/* adapter with two sockets, each camera's own plug, and the adapter's plug going into the car's 12V socket */
-const wiring=()=>`<defs><clipPath id="aboveHole"><rect x="0" y="0" width="360" height="204"/></clipPath></defs>
-  <ellipse cx="104" cy="204" rx="16" ry="7.5" fill="${SD3}"/><ellipse cx="104" cy="204" rx="10" ry="4.8" fill="${N}"/>${T(72,208,10,'12V')}
-  <g clip-path="url(#aboveHole)"><path class="lead" d="M176 155 C150 152 104 150 104 173" fill="none" stroke="${N}" stroke-width="2.6" stroke-linecap="round" vector-effect="non-scaling-stroke"/><g class="carplug">${R(99,185,10,12,2.5,GY)}${R(95,172,18,15,5,AM)}${R(95,180,18,7,3.5,AM2)}</g></g>
-  ${R(162,147,13,9,3,N)}${R(185,147,13,9,3,N)}${R(156,152,48,17,6,AM)}${R(156,161,48,8,4,AM2)}
-  ${C(180,158.5,2.5,W,'class="off"')}${C(180,158.5,2.5,CO,'class="on"')}
-  <g class="camplugs"><path d="M168.5 121 C168 96 104 74 104 20 M191.5 121 C192 96 256 74 256 20" fill="none" stroke="${W}" stroke-width="4.4" stroke-linecap="round"/><path d="M168.5 121 C168 96 104 74 104 20 M191.5 121 C192 96 256 74 256 20" fill="none" stroke="${N}" stroke-width="2.6" stroke-linecap="round"/>
-  ${R(165,130,7,10,2,GY)}${R(188,130,7,10,2,GY)}${R(162,120,13,11,4,N2)}${R(185,120,13,11,4,N2)}</g>`;
-const phone=(x,y,w,h,inner='',scr=W)=>`${R(x,y,w,h,w*.16,N)}${R(x+w*.08,y+w*.14,w*.84,h-w*.34,w*.07,scr)}${inner}`;
-const barrier=(x,y)=>`<g>${R(x+6,y+20,6,34,0,N2)}${R(x+84,y+20,6,34,0,N2)}${R(x,y,96,22,5,W)}${[0,1,2,3].map(i=>`<path d="M${x+6+i*24} ${y} L${x+18+i*24} ${y} L${x+8+i*24} ${y+22} L${x-4+i*24} ${y+22} Z" fill="${CO}"/>`).join('')}</g>`;
-const post=(x,letter,solid,ry=150)=>`${R(x-2.5,ry-70,5,70,0,GY)}${solid?C(x,ry-78,21,N):C(x,ry-78,21,W)+`<circle cx="${x}" cy="${ry-78}" r="19" fill="none" stroke="${N}" stroke-width="4"/>`}${T(x,ry-70,23,letter,solid?W:N)}`;
-const clockIcon=(cx,cy,r)=>`${C(cx,cy,r,W)}<circle cx="${cx}" cy="${cy}" r="${r-1.5}" fill="none" stroke="${N}" stroke-width="3"/><path d="M${cx} ${cy-r*.55} L${cx} ${cy} L${cx+r*.4} ${cy+r*.2}" fill="none" stroke="${N}" stroke-width="3" stroke-linecap="round"/>`;
-
-/* ---------- card pictures ---------- */
-const S={};
-S.job=svg('A car with two dash cams recording the road ahead',`${outside(156)}
-  <g class="drift">${R(120,40,54,14,7,W,'opacity=".8"')}${R(140,30,30,14,7,W,'opacity=".8"')}${R(-40,70,44,12,6,W,'opacity=".7"')}</g>
-  ${R(30,96,26,60,3,MT)}${R(60,112,20,44,3,'#CADBD8')}${R(252,104,30,52,3,'#CADBD8')}${R(286,120,22,36,3,MT)}${R(0,156,360,64,0,N)}${R(0,156,360,3,0,'#2A3567')}
-  ${lane(192,'lane')}<polygon points="200,113 360,86 360,152" fill="${AM}" class="pulse"/>${use('car',60,88,204,'bob')}
-  ${R(16,16,76,28,14,N)}${C(34,30,6,CO,'class="blink"')}${T(64,35,13,'REC',CR,1)}`);
-S.before=svg('A phone message confirming you are coming, a clock with your session marked, and a fuel pump',`${R(0,0,360,220,0,CR)}${R(0,190,360,30,0,'#E6D8BF')}
-  ${phone(36,22,104,178)}${R(52,56,58,22,11,'#E6E9F0')}${R(60,64,30,5,2.5,GY)}
-  <g class="pop">${R(64,92,62,30,13,SG)}<path d="M84 107 L92 115 L107 99" fill="none" stroke="${W}" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/></g>${R(52,150,72,16,8,'#E6E9F0')}
-  ${C(232,96,60,W)}<path d="M232 96 L232 44 A52 52 0 0 1 284 96 Z" fill="${AM}" opacity=".55"/><circle cx="232" cy="96" r="58" fill="none" stroke="${N}" stroke-width="5"/>
-  ${[0,90,180,270].map(a=>`<line x1="${232+46*Math.cos(a*Math.PI/180)}" y1="${96+46*Math.sin(a*Math.PI/180)}" x2="${232+52*Math.cos(a*Math.PI/180)}" y2="${96+52*Math.sin(a*Math.PI/180)}" stroke="${N}" stroke-width="4" stroke-linecap="round"/>`).join('')}
-  <line x1="232" y1="96" x2="232" y2="56" stroke="${N}" stroke-width="5" stroke-linecap="round" class="hand" style="transform-origin:232px 96px"/><line x1="232" y1="96" x2="254" y2="96" stroke="${CO}" stroke-width="5" stroke-linecap="round"/>${C(232,96,5,N)}
-  ${R(304,138,36,52,7,CO)}${R(310,145,24,15,3,W)}<path d="M304 152 Q292 152 292 166 L292 178" fill="none" stroke="${N}" stroke-width="4" stroke-linecap="round"/>${R(287,176,10,13,3,N)}`);
-S.setup=svg("View from the driver's seat: two cameras at the top of the windscreen, one each side of the mirror, both looking at the road ahead",`${cabin(0)}
-  <path d="M84 24 C50 22 30 40 22 132" fill="none" stroke="${N}" stroke-width="2.4" stroke-linecap="round"/><path d="M276 24 C310 22 330 40 338 132" fill="none" stroke="${N}" stroke-width="2.4" stroke-linecap="round"/>
-  <g class="vf"><polygon points="104,44 56,66 212,66" fill="${AM}" opacity=".2"/><rect x="56" y="66" width="156" height="58" fill="${AM}" opacity=".15"/><path d="M104 44 L56 66 M104 44 L212 66 M104 44 L56 124 M104 44 L212 124" fill="none" stroke="${AM}" stroke-width="1.5" stroke-linecap="round"/>
-  <polygon points="256,44 148,66 304,66" fill="${AM}" opacity=".2"/><rect x="148" y="66" width="156" height="58" fill="${AM}" opacity=".15"/><path d="M256 44 L148 66 M256 44 L304 66 M256 44 L148 124 M256 44 L304 124" fill="none" stroke="${AM}" stroke-width="1.5" stroke-linecap="round"/>
-  <path d="M56 66 L304 66 M212 66 L212 124 M148 66 L148 124" fill="none" stroke="${AM2}" stroke-width="2" stroke-dasharray="6 4" stroke-linecap="round"/><path d="M56 66 L56 124 L304 124 L304 66" fill="none" stroke="${AM}" stroke-width="1.8" stroke-linejoin="round" stroke-linecap="round"/></g>
-  ${camBody(84,'drop')}${camBody(236,'drop')}
-  <g class="tickin" style="animation-delay:.6s">${check(84,42,9)}</g><g class="tickin" style="animation-delay:.85s">${check(236,42,9)}</g>`);
-S.power=svg("View from the driver's seat. Each camera plugs into the two-socket adapter, and the adapter plugs into the car's 12V socket. Then both screens show REC.",`${cabin(0)}${wiring()}${cams('dual')}`);
-S.odo=svg('The odometer on the dashboard and a phone taking a photo of it',`${R(0,0,360,220,0,SD)}${R(0,0,360,26,0,SD2)}
-  ${R(18,34,220,172,26,N)}${C(128,102,58,N3)}
-  ${[0,1,2,3,4,5,6,7,8].map(k=>{const a=(150+k*30)*Math.PI/180;return `<line x1="${128+46*Math.cos(a)}" y1="${102+46*Math.sin(a)}" x2="${128+54*Math.cos(a)}" y2="${102+54*Math.sin(a)}" stroke="${CR}" stroke-width="3" stroke-linecap="round"/>`}).join('')}
-  <line x1="128" y1="102" x2="128" y2="60" stroke="${CO}" stroke-width="4.5" stroke-linecap="round" class="needle" style="transform-origin:128px 102px"/>${C(128,102,6,CR)}
-  ${R(72,158,112,34,7,NK)}${'04731'.split('').map((d,i)=>T(88+i*18,182,20,d,CR,1)).join('')}
-  <clipPath id="dc"><rect x="166" y="162" width="15" height="26" rx="3"/></clipPath>${R(166,162,15,26,3,AM)}<g clip-path="url(#dc)"><g class="roll">${[0,1,2,3,4,5,6,7,8,9].map(d=>T(173.5,182+d*30,20,d,N,1)).join('')}</g></g>
-  ${phone(256,44,84,160,'',NK)}<path d="M272 72 L272 82 M272 72 L282 72 M324 72 L314 72 M324 72 L324 82 M272 138 L272 128 M272 138 L282 138 M324 138 L314 138 M324 138 L324 128" stroke="${AM}" stroke-width="3" fill="none" stroke-linecap="round"/>
-  ${R(277,96,42,18,4,N3)}${T(298,109,11,'047318',CR,1)}${C(298,188,7,W)}${R(263,56,70,118,6,W,'class="flash"')}`);
-S.road=svg('Driving with the traffic at normal speed',`${outside(156,0)}
-  ${C(58,60,40,W)}${arc(58,60,29,200,245,CO)}${arc(58,60,29,252,288,SG)}${arc(58,60,29,295,340,CO)}
-  <line x1="58" y1="60" x2="58" y2="36" stroke="${N}" stroke-width="4.5" stroke-linecap="round" class="needle" style="transform-origin:58px 60px"/>${C(58,60,5.5,N)}
-  ${lane(192,'lane-slow')}${use('carB',4,126,112,'jam')}${use('car',124,126,112,'bob')}${use('carC',244,126,112,'jam')}`);
-const topCar=(x,y,col)=>`${R(x,y,36,64,11,col)}${R(x+5,y+13,26,13,4,'#D5E6E4')}${R(x+6,y+45,24,8,3,'#D5E6E4')}${R(x+4,y+2,8,4,2,AM)}${R(x+24,y+2,8,4,2,AM)}`;
-const cross=(x,y,r)=>`${C(x,y,r,CO)}<path d="M${x-r*.4} ${y-r*.4} L${x+r*.4} ${y+r*.4} M${x+r*.4} ${y-r*.4} L${x-r*.4} ${y+r*.4}" stroke="${W}" stroke-width="${r*.26}" stroke-linecap="round"/>`;
-const road3=(h)=>`${R(0,0,360,h,0,'#E6D8BF')}${R(70,0,220,h,0,N)}${R(290,0,14,h,0,SD3)}${R(70,0,4,h,0,CR,'opacity=".7"')}
-  <line x1="143" y1="-30" x2="143" y2="${h+30}" stroke="${CR}" stroke-width="3" stroke-dasharray="16 14" class="lanev2"/><line x1="217" y1="-30" x2="217" y2="${h+30}" stroke="${CR}" stroke-width="3" stroke-dasharray="16 14" class="lanev2"/>`;
-S.lanes=svg('A three-lane road seen from above: drive in the kerb lane or the second lane, and use the far right lane only to turn right',`${road3(220)}
-  ${topCar(88.5,26,SG)}<g class="bob">${topCar(162,92,CO)}</g>${check(106.5,186,15)}${check(180,186,15)}<g class="pop" style="animation-duration:4s">${C(253.5,110,23,AM)}<path d="M245 124 L245 110 Q245 103 252 103 L263 103 M257 96.5 L263.5 103 L257 109.5" fill="none" stroke="${N}" stroke-width="4.5" stroke-linecap="round" stroke-linejoin="round"/></g>`);
-S.finish=svg('The car drives from one end to the other and back, and finishes where it started',`${outside(150,0)}${lane(190)}${post(42,'A',1)}${post(318,'B',0)}
-  <g class="trip"><use href="#car" x="14" y="130" width="96" height="46"/></g>
-  <g class="timesup">${R(126,46,108,34,17,W)}${clockIcon(146,63,11)}${T(193,68,12,"TIME'S UP",CO)}</g>
-  <g class="finish forA">${R(74,36,4,50,0,N)}${[0,1,2].map(r=>[0,1,2,3].map(c=>R(78+c*8,36+r*8,8,8,0,(r+c)%2?W:N)).join('')).join('')}</g>
-  <g class="finish forB">${R(282,36,4,50,0,N)}${[0,1,2].map(r=>[0,1,2,3].map(c=>R(250+c*8,36+r*8,8,8,0,(r+c)%2?W:N)).join('')).join('')}</g>`);
-S.route=svg('Road closed ahead: stop, tell your supervisor, wait for OK, then go around only the closed part',`${outside(150)}${lane(190)}
-  ${barrier(232,118)}${use('carS',30,126,112)}${C(139,155,4,AM,'class="blink"')}
-  ${phone(64,40,34,58)}<path d="M106 54 Q114 68 106 82" fill="none" stroke="${SG}" stroke-width="4" stroke-linecap="round" class="wave"/><path d="M116 48 Q128 68 116 88" fill="none" stroke="${SG}" stroke-width="4" stroke-linecap="round" class="wave w2"/>
-  <g class="pop">${R(140,44,66,32,16,SG)}${T(173,66,15,'OK',W)}</g>`);
-S.hands=svg("View from the driver's seat while driving: don't touch the cameras, don't use the phone",`<g data-s="2">${cabin(1)}${wiring()}${camBody(84)}${camBody(236)}${camRec(84)}${camRec(236)}</g>
-  <g class="shake">${no(104,28,27)}</g><g class="shake" style="animation-delay:.3s">${no(256,28,27)}</g>${phone(16,134,40,64)}<g class="shake">${no(36,165,30)}</g>`);
-S.wrong=svg('First call your supervisor. No answer: message the group chat. Emergency: call 000.',`${R(0,0,360,220,0,CR)}${R(0,190,360,30,0,'#E6D8BF')}
-  ${phone(26,26,88,164)}${C(70,84,18,MT)}<path d="M46 132 Q70 104 94 132 L94 140 L46 140Z" fill="${MT}"/>${C(70,160,11,SG)}
-  <path d="M122 80 Q130 96 122 112" fill="none" stroke="${SG}" stroke-width="4" stroke-linecap="round" class="wave"/><path d="M132 72 Q146 96 132 120" fill="none" stroke="${SG}" stroke-width="4" stroke-linecap="round" class="wave w2"/>
-  ${C(30,30,13,AM)}${T(30,35.5,15,'1',N)}
-  <g class="pop" style="animation-duration:4s">${R(158,62,92,76,16,W)}${C(180,86,9,MT)}${C(204,86,9,AM)}${C(228,86,9,N2)}${R(172,106,64,6,3,GY)}${R(172,118,42,6,3,GY)}<path d="M176 136 L176 152 L194 136Z" fill="${W}"/></g>
-  ${C(162,66,13,AM)}${T(162,71.5,15,'2',N)}
-  <g class="shake">${C(306,104,40,CO)}${T(306,114,27,'000',W)}</g>`);
-S.sd=svg("The back of a camera with its screen. Don't take the SD card out of its slot.",`${R(0,0,360,220,0,CR)}${R(0,186,360,34,0,'#E6D8BF')}<ellipse cx="146" cy="186" rx="100" ry="6" fill="${NK}" opacity=".18"/>
-  ${R(134,22,24,26,0,N)}<g class="tug">${R(214,84,28,36,4,AM)}${R(232,90,4,24,1,N,'opacity=".4"')}</g>
-  ${R(60,44,172,116,20,N)}${R(76,60,140,84,10,N2)}${C(98,82,7,CO,'class="blink"')}${T(134,88,17,'REC',CR,1)}${R(90,116,70,6,3,CR,'opacity=".5"')}${R(90,128,44,6,3,CR,'opacity=".35"')}
-  ${R(224,80,8,44,3,NK)}
-  <path d="M262 132 L284 132 M276 124 L285 132 L276 140" fill="none" stroke="${CO}" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" class="tug"/><g class="stopsign">${no(252,102,34)}</g>`);
-const camCable=(x)=>`${R(x,30,40,28,7,N)}${R(x+5,35,30,18,4,N3)}<path d="M${x+40} 46 C${x+54} 46 ${x+48} 62 ${x+62} 62" fill="none" stroke="${N}" stroke-width="2.5" stroke-linecap="round"/>${R(x+73,59.5,7,5,1.5,GY)}${R(x+62,56,12,12,4,N2)}`;
-S.back=svg('Hand back both cameras, with their cables, and the adapter',`${R(0,0,360,220,0,CR)}${R(0,186,360,34,0,'#E6D8BF')}
-  <g class="tickin">${camCable(22)}${check(62,30,9)}</g><g class="tickin" style="animation-delay:.25s">${camCable(122)}${check(162,30,9)}</g>
-  <g class="tickin" style="animation-delay:.5s">${R(248,30,12,9,3,N)}${R(270,30,12,9,3,N)}${R(240,36,50,19,6,AM)}${R(240,46,50,9,4.5,AM2)}<path d="M290 46 C304 46 298 62 310 62" fill="none" stroke="${N}" stroke-width="2.5" stroke-linecap="round"/>${R(322,59.5,7,5,1.5,GY)}${R(310,56,13,12,4,AM)}${check(290,32,9)}</g>
-  <path d="M64 80 Q100 112 150 126 M164 80 L174 120 M282 80 Q256 110 212 126" fill="none" stroke="${SG}" stroke-width="3.5" stroke-dasharray="7 7" stroke-linecap="round" class="dash"/>
-  <ellipse cx="180" cy="192" rx="78" ry="6" fill="${NK}" opacity=".18"/>
-  <g class="nudge"><path d="M118 132 L242 132 L234 190 L126 190 Z" fill="${SD3}"/><path d="M118 132 L242 132 L239 150 L121 150 Z" fill="${SD2}"/>${R(162,162,36,8,4,N,'opacity=".35"')}</g>`);
-S.keys=svg('Four key points: stay safe, on time, recording, on route',`${R(0,0,360,220,0,CR)}
-  ${[10,96,182,268].map(x=>R(x,26,82,150,14,W)).join('')}
-  <g class="tickin"><path d="M51 52 L72 61 L72 77 Q72 96 51 105 Q30 96 30 77 L30 61 Z" fill="${SG}"/><path d="M41 78 L49 86 L62 71" fill="none" stroke="${W}" stroke-width="4.5" stroke-linecap="round" stroke-linejoin="round"/></g>
-  <g class="tickin" style="animation-delay:.25s">${clockIcon(137,78,25)}</g>
-  <g class="tickin" style="animation-delay:.5s">${R(196,60,54,36,8,N)}${C(210,78,6.5,CO,'class="blink"')}${R(221,75,22,6,3,CR)}</g>
-  <g class="tickin" style="animation-delay:.75s">${R(285,54,48,48,10,N)}<path d="M309 92 L309 64 M299 74 L309 63 L319 74" fill="none" stroke="${AM}" stroke-width="4.5" stroke-linecap="round" stroke-linejoin="round"/></g>
-  ${[51,137,223,309].map((x,i)=>T(x,148,26,i+1,N)).join('')}`);
-
-/* ---------- quiz pictures: set the scene, never show the answer ---------- */
-const QH=170, qsvg=(l,i,h=QH)=>svg(l,i,h);
-const QS=[
-  qsvg('An empty windscreen and two cameras waiting to be mounted',`${cabin(0)}${R(128,150,104,20,6,SD3)}${R(140,134,40,28,7,N)}${R(145,139,30,18,4,N3)}${R(184,134,40,28,7,N)}${R(189,139,30,18,4,N3)}${qmark(180,74)}`,196),
-  qsvg('Two cameras, plugged in. What do the screens need to show?',`<g data-s="2">${cabin(0)}${wiring().replace(/class="on"/g,'').replace(/class="off"/g,'opacity="0"')}</g>${cams('q')}`,196),
-  qsvg('A recording camera, an adapter plug, an SD card and a settings icon',`${R(0,0,360,QH,0,CR)}${R(134,12,92,40,10,N)}${C(156,32,6.5,CO,'class="blink"')}${T(190,37,14,'REC',CR,1)}${qmark(260,32)}
-    ${[26,134,242].map(x=>R(x,70,92,84,14,W)).join('')}
-    ${R(52,100,34,22,8,AM)}${R(52,111,34,11,5.5,AM2)}${R(84,104,16,14,3,GY)}
-    <path d="M162 86 L190 86 L200 96 L200 140 L162 140 Z" fill="${N2}"/>${[0,1,2].map(i=>R(167+i*8,90,5,11,1,AM)).join('')}
-    ${[0,1,2,3,4,5,6,7].map(k=>`<rect x="282.5" y="87" width="11" height="14" rx="2.5" fill="${N}" transform="rotate(${k*45} 288 112)"/>`).join('')}${C(288,112,19,N)}${C(288,112,8,W)}`),
-  qsvg('An odometer, a phone camera and a clock',`${R(0,0,360,QH,0,SD)}${R(18,44,170,82,18,N)}${R(34,66,138,38,8,NK)}${'047318'.split('').map((d,i)=>T(52+i*20.5,93,22,d,CR,1)).join('')}
-    ${phone(210,20,64,130,'',NK)}${C(242,139,6,W)}${clockIcon(316,62,26)}${qmark(316,128)}`),
-  qsvg('Time is up while the car is halfway between A and B',`${outside(108,0)}${lane(146)}${post(42,'A',1,108)}${post(318,'B',0,108)}${use('car',132,84,96,'bob')}${R(126,14,108,34,17,W)}${clockIcon(146,31,11)}${T(193,36,12,"TIME'S UP",CO)}`),
-  qsvg('Slow traffic, cars close together',`${outside(108,0)}${lane(146,'lane-slow')}${use('carC',-30,80,104,'jam')}${use('car',82,80,104,'bob')}${use('carB',194,80,104,'jam')}${use('carC',306,80,104,'jam')}${qmark(180,40)}`),
-  qsvg('A road closed barrier ahead on the route',`${outside(108)}${lane(146)}${barrier(236,76)}${use('carS',34,84,108)}${C(140,112,4,AM,'class="blink"')}${qmark(180,44)}`),
-  qsvg('Calling the supervisor: no answer',`${R(0,0,360,QH,0,CR)}${phone(44,14,84,142)}${C(86,62,16,MT)}<path d="M64 104 Q86 80 108 104 L108 110 L64 110Z" fill="${MT}"/>${C(86,126,9,CO)}
-    <g class="blink">${C(150,52,5,GY)}${C(168,52,5,GY)}${C(186,52,5,GY)}</g>${R(150,78,150,44,22,W)}${C(176,100,12,CO)}<path d="M170 94 L182 106 M182 94 L170 106" stroke="${W}" stroke-width="3.5" stroke-linecap="round"/>${R(198,90,84,7,3.5,GY)}${R(198,104,54,7,3.5,GY)}${qmark(316,44)}`),
-  qsvg('Two cars waiting at the same start point',`${outside(108,0)}${lane(146)}${post(42,'A',1,108)}${use('carBS',64,84,104)}${use('carS',180,84,104)}${clockIcon(310,42,26)}${qmark(254,34)}`),
-  qsvg('A three-lane road seen from above, with a car choosing a lane',`${road3(QH)}${[106.5,180,253.5].map(x=>T(x,52,30,'?',AM)).join('')}<g class="bob">${topCar(162,98,CO)}</g>`)
-];
-
-/* ---------- content ---------- */
+/* ==========================================================================================
+   CONTENT: change the guide's text here (GUIDE-PRINCIPLES.md 7). Rules come from the owner (AGENTS.md 1).
+   Card: g = stage (index in STAGES), t = title, pic = picture name (in S, "card pictures" below), lead = optional
+   first sentence, pts = points (at most 3), plug = plug buttons (power | between), choose = A / B choice,
+   keys = show the four key points. Quiz: q = question, o = options, a = index of the right option, why = reason.
+   The quiz pictures (QS) are in the same order as QUIZ.
+   ========================================================================================== */
 const STAGES=['Before you drive','On the road','Between sessions','After the last session','Check'];
 const LEGS=['BEFORE','ROAD','BREAK','AFTER','QUIZ'];
 const CARDS=[
-  {g:0,t:"The job",s:S.job,lead:"You drive your own car on a set route. Two dash cams record the road for traffic data.",
+  {g:0,t:"The job",pic:'job',lead:"You drive your own car on a set route. Two dash cams record the road for traffic data.",
    pts:["Your supervisor gives you your <strong>route</strong> and your <strong>survey sessions</strong>, for example one in the morning and one in the afternoon.","Only video <strong>inside the survey session</strong> is useful. We need all of it, from start to finish."]},
-  {g:0,t:"Before you start",s:S.before,
+  {g:0,t:"Before you start",pic:'before',
    pts:["<strong>Know your own start and finish time.</strong> Drivers on the same route can have different times.","<strong>Confirm</strong> you are coming: send your supervisor a message before the deadline they give you. No message? A backup driver takes your route.","<strong>Fuel and toilet</strong> before you start, and <strong>be at your start point early</strong>."]},
-  {g:0,t:"Camera setup",s:S.setup,lead:"Mount both cameras as high as you can on the windscreen, next to the rear-view mirror. Point the lenses straight ahead.",
+  {g:0,t:"Camera setup",pic:'setup',lead:"Mount both cameras as high as you can on the windscreen, next to the rear-view mirror. Point the lenses straight ahead.",
    pts:["<strong>Stable:</strong> they must not move or fall.","<strong>Clear view:</strong> clean the windscreen inside and outside. Nothing blocks the cameras, and they don't block your view.","<strong>Cables</strong> stay away from the steering wheel and pedals."]},
-  {g:0,t:"Power on",s:S.power,plug:'power',lead:"Each camera has its own plug. Plug both into the adapter. Then plug the adapter into the car's 12V socket (cigarette lighter).",
+  {g:0,t:"Power on",pic:'power',plug:'power',lead:"Each camera has its own plug. Plug both into the adapter. Then plug the adapter into the car's 12V socket (cigarette lighter).",
    pts:["Check <strong>both screens</strong> show <strong>REC</strong> and a red dot.","<span class=\"no\">Don't drive</span> until you see it on both."]},
-  {g:0,t:"Odometer photos",s:S.odo,lead:"Take a photo of your odometer. Send the photos the way your supervisor tells you.",
+  {g:0,t:"Odometer photos",pic:'odo',lead:"Take a photo of your odometer. Send the photos the way your supervisor tells you.",
    pts:["<strong>Before</strong> each survey session starts.","<strong>After</strong> each survey session ends.","Morning and afternoon sessions? That is <strong>four photos</strong>."]},
-  {g:1,t:"On the road",s:S.road,
+  {g:1,t:"On the road",pic:'road',
    pts:["<strong>Drive with the traffic.</strong> When the road is clear, drive at or near the speed limit.","<strong>Keep driving</strong> your route, there and back, until the finish time. Don't finish early.","<strong>Everyone is slow?</strong> That's OK. Traffic jams are part of the data. Just keep going."]},
-  {g:1,t:"Lanes and overtaking",s:S.lanes,
+  {g:1,t:"Lanes and overtaking",pic:'lanes',
    pts:["<strong>Drive in the kerb lane or the second lane</strong> as much as you can. The kerb lane is the lane next to the roadside. Use the far right lane only when your route turns right.","<strong>One slow vehicle in front?</strong> Overtake when it is safe, then go back to the speed limit.","<strong>Red light or traffic jam?</strong> Follow the vehicles in front. Don't change lanes to get in front."]},
-  {g:1,t:"Finish where you started",s:S.finish,choose:true,lead:"Start at A, finish at A. Start at B, finish at B.",
+  {g:1,t:"Finish where you started",pic:'finish',choose:true,lead:"Start at A, finish at A. Start at B, finish at B.",
    pts:["<strong>Time is up?</strong> Don't stop. Keep driving along your route until you are back at your start point.","On the way to the other end? <strong>Go to the other end first</strong>, then drive back. Don't turn around halfway.","<strong>Write down</strong> the time you get back to your start point."]},
-  {g:1,t:"Stay on your route",s:S.route,lead:"Keep to your route, even if another way looks faster.",
+  {g:1,t:"Stay on your route",pic:'route',lead:"Keep to your route, even if another way looks faster.",
    pts:["<strong>Road closed?</strong> Stop in a safe place and tell your supervisor. <strong>Wait for their OK</strong>, then go around only the closed part. Keep the rest of your route the same.","<strong>Wrong turn?</strong> Go back to your route as soon as you can.","<strong>Need a break?</strong> You can take one at any time during a session. Stop in a safe place. Keep it to <strong>10 minutes or less</strong>, then go back to your route."]},
-  {g:1,t:"Hands off while driving",s:S.hands,
+  {g:1,t:"Hands off while driving",pic:'hands',
    pts:["<strong>Don't touch the cameras</strong> while you drive.","<strong>Need to call or message?</strong> Stop in a safe place first.","<strong>Camera stopped?</strong> Stop in a safe place. Check the plugs and the adapter, then check REC on both screens."]},
-  {g:1,t:"If something goes wrong",s:S.wrong,
+  {g:1,t:"If something goes wrong",pic:'wrong',
    pts:["<strong>Car problem or personal problem?</strong> Stop in a safe place, then call your supervisor.","<strong>No answer?</strong> Message the team group chat.","<strong>Accident?</strong> Make sure you are safe. Call <strong>000</strong> if anyone is hurt or in danger. Then call your supervisor."]},
-  {g:2,t:"Between sessions",s:S.power,plug:'between',lead:"When a session ends, stop the cameras. Before the next one, start them again.",
+  {g:2,t:"Between sessions",pic:'power',plug:'between',lead:"When a session ends, stop the cameras. Before the next one, start them again.",
    pts:["<strong>Session finished:</strong> pull the adapter out of the car. Leave the cameras plugged into the adapter.","<strong>Before the next session:</strong> plug the adapter in again and check <strong>REC on both screens</strong>.","<strong>Check your next start time</strong>, and be at your start point early."]},
-  {g:3,t:"Don't touch the SD card",s:S.sd,lead:"The video is on the SD card inside each camera.",
+  {g:3,t:"Don't touch the SD card",pic:'sd',lead:"The video is on the SD card inside each camera.",
    pts:["<strong>Don't take the SD card out</strong> or touch it. We take care of it.","<strong>Only for this job:</strong> don't use the cameras for anything else."]},
-  {g:3,t:"Hand back",s:S.back,lead:"At the end, hand back everything to your supervisor, where and when they tell you.",
+  {g:3,t:"Hand back",pic:'back',lead:"At the end, hand back everything to your supervisor, where and when they tell you.",
    pts:["<strong>Both cameras</strong>, with their cables, and the <strong>adapter</strong>.","<strong>Camera damaged or lost?</strong> Tell your supervisor straight away."]},
-  {g:4,t:"Remember these 4",s:S.keys,keys:true,lead:"Before the quiz, remember the four things that matter most."}
+  {g:4,t:"Remember these 4",pic:'keys',keys:true,lead:"Before the quiz, remember the four things that matter most."}
 ];
 const QUIZ=[
   {q:"Where do you mount the two cameras?",o:["On the dashboard, wherever they fit","At the top of the windscreen, next to the rear-view mirror","In the bottom corner of the windscreen"],a:1,why:"As high as you can, next to the rear-view mirror, lenses pointing straight ahead. They must be stable and not block your view."},
@@ -441,37 +315,204 @@ const QUIZ=[
   {q:"Another driver has the same route as you. When do you start?",o:["At the same time as the other driver","At my own start time from my supervisor","Any time in the first ten minutes"],a:1,why:"Drivers on the same route can have different start and finish times. Know your own."},
   {q:"You are on a three-lane road. Which lane do you use?",o:["The far right lane, all the way","The kerb lane or the second lane","Any lane, and change lanes often"],a:1,why:"Drive in the kerb lane or the second lane. Use the far right lane only when your route turns right."}
 ];
-const KICON={
-  safe:`<svg viewBox="0 0 32 32" aria-hidden="true"><path d="M16 3 L27 7.5 L27 15 Q27 24 16 29 Q5 24 5 15 L5 7.5 Z" fill="${SG}"/><path d="M11 16 L15 20 L22 12" fill="none" stroke="${W}" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg>`,
-  clock:`<svg viewBox="0 0 32 32" aria-hidden="true">${clockIcon(16,16,13)}</svg>`,
-  rec:`<svg viewBox="0 0 32 32" aria-hidden="true">${R(3,7,26,18,5,N)}${C(11,16,4,CO)}${R(17,14,8,4,2,CR)}</svg>`,
-  route:`<svg viewBox="0 0 32 32" aria-hidden="true">${R(3,3,26,26,6,N)}<path d="M16 24 L16 9 M10 14 L16 8 L22 14" fill="none" stroke="${AM}" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg>`};
 const KEYS=[{i:'safe',t:'Stay safe.',d:'Safety comes before the data.'},{i:'clock',t:'Start on time. Drive the whole session.',d:'Only video inside the session is useful.'},{i:'rec',t:'Keep both cameras recording.',d:'Check REC before you start.'},{i:'route',t:'Stay on your route.',d:'Road closed? Report it and get OK first. Then go around only the closed part.'}];
+
+/* ---------- picture palette and drawing helpers ----------
+   Pictures are inline SVG with their own fixed palette (the same in day and night: DESIGN.md 4).
+   rect(x, y, w, h, radius, fill, extra), circle(cx, cy, r, fill, extra), text(x, y, size, text, fill, mono, anchor),
+   svg(label, inner, height) wraps a 360-wide picture with its text alternative. ---------- */
+const NAVY='#141B3C',NAVY_2='#33407A',NAVY_3='#232B52',NAVY_DARK='#0A0E22',CREAM='#F3EBDD',WHITE='#FFFDF8',AMBER='#F2A93B',AMBER_DARK='#DB932A',CORAL='#E4572E',CORAL_DARK='#C4441F',SAGE='#5E8F88',SKY='#DCE9E8',SKY_2='#C9DBD8',SAND='#D8C9AE',SAND_2='#C4B393',SAND_3='#BCA988',GREY='#B8BCC8',MIST='#B9CFCB';
+const rect=(x,y,w,h,rx,f,e='')=>`<rect x="${x}" y="${y}" width="${w}" height="${h}" rx="${rx}" fill="${f}" ${e}/>`;
+const circle=(cx,cy,r,f,e='')=>`<circle cx="${cx}" cy="${cy}" r="${r}" fill="${f}" ${e}/>`;
+const text=(x,y,s,t,f=NAVY,mono=0,a='middle')=>`<text x="${x}" y="${y}" text-anchor="${a}" font-family="${mono?'Overpass Mono, monospace':'Overpass, Arial, sans-serif'}" font-weight="${mono?600:800}" font-size="${s}" fill="${f}">${t}</text>`;
+const svg=(label,inner,h=220)=>`<svg viewBox="0 0 360 ${h}" role="img" aria-label="${label}">${inner}</svg>`;
+const check=(x,y,r=9)=>`<g>${circle(x,y,r,SAGE)}<path d="M${x-r*.45} ${y} L${x-r*.1} ${y+r*.36} L${x+r*.5} ${y-r*.36}" fill="none" stroke="${WHITE}" stroke-width="${r*.28}" stroke-linecap="round" stroke-linejoin="round"/></g>`;
+const no=(cx,cy,r)=>`<g><circle cx="${cx}" cy="${cy}" r="${r}" fill="none" stroke="${CORAL}" stroke-width="6"/><line x1="${cx-r*.7}" y1="${cy-r*.7}" x2="${cx+r*.7}" y2="${cy+r*.7}" stroke="${CORAL}" stroke-width="6" stroke-linecap="round"/></g>`;
+const qmark=(x,y)=>`<g class="pop" style="animation-duration:3s">${circle(x,y,17,WHITE)}${text(x,y+8,23,'?',CORAL)}</g>`;
+const arc=(cx,cy,r,a0,a1,col,w=7)=>{const p=a=>[cx+r*Math.cos(a*Math.PI/180),cy+r*Math.sin(a*Math.PI/180)].map(v=>v.toFixed(1)).join(' ');return `<path d="M${p(a0)} A${r} ${r} 0 0 1 ${p(a1)}" fill="none" stroke="${col}" stroke-width="${w}" stroke-linecap="round"/>`;};
+const carSym=(id,body,shade,cams,spin=1)=>`<symbol id="${id}" viewBox="0 0 204 98"><ellipse cx="102" cy="92" rx="94" ry="5" fill="${NAVY_DARK}" opacity=".28"/>
+  <path d="M10 72 L10 50 Q10 42 18 41 L36 38 L54 18 Q58 12 68 12 L124 12 Q132 12 138 18 L158 40 L182 44 Q194 46 194 58 L194 72 Q194 76 190 76 L14 76 Q10 76 10 72 Z" fill="${body}"/>
+  <path d="M10 62 L194 62 L194 72 Q194 76 190 76 L14 76 Q10 76 10 72 Z" fill="${shade}"/>
+  <path d="M60 21 L47 38 L92 38 L92 20 L63 20 Q61 20 60 21 Z" fill="#D5E6E4"/><path d="M98 20 L98 38 L151 38 L135 22 Q133 20 130 20 Z" fill="#D5E6E4"/>
+  <path d="M108 20 L120 20 L106 38 L98 38 L98 33 Z" fill="#FFFFFF" opacity=".55"/>
+  ${cams?rect(121,21.5,10,6,2,NAVY_2)+rect(125,21.5,10,6,2,NAVY)+circle(134,24.5,1.6,AMBER):''}
+  <rect x="94.2" y="20" width="1.6" height="40" fill="${NAVY}" opacity=".22"/>${rect(104,45,11,3,1.5,NAVY,'opacity=".45"')}${rect(62,45,11,3,1.5,NAVY,'opacity=".45"')}
+  ${rect(185,50,9,7,2.5,AMBER)}${rect(10,47,5,9,2,'#8F2A14')}
+  ${[48,154].map(cx=>circle(cx,76,15,NAVY)+circle(cx,76,7,CREAM)+`<g class="${spin?'wheel':''}">${rect(cx-7,75,14,2,0,NAVY)}${rect(cx-1,69,2,14,0,NAVY)}</g>`+circle(cx,76,2.2,NAVY)).join('')}</symbol>`;
+const DEFS=`<svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs>${carSym('car',CORAL,CORAL_DARK,1)}${carSym('carB',SAGE,'#4C7A73',0)}${carSym('carC',NAVY_2,'#2A3567',0)}${carSym('carS',CORAL,CORAL_DARK,1,0)}${carSym('carBS',SAGE,'#4C7A73',0,0)}</defs></svg>`;
+const use=(id,x,y,w,cls='')=>`<g class="${cls}"><use href="#${id}" x="${x}" y="${y}" width="${w}" height="${w*98/204}"/></g>`;
+/* outside world: cream sky, sun, hills, road */
+const outside=(ry=156,sun=1)=>`${rect(0,0,360,220,0,CREAM)}${sun?circle(284,56,30,'#F7D9A0'):''}<path d="M0 ${ry-14} Q60 ${ry-44} 130 ${ry-24} T260 ${ry-32} T360 ${ry-22} L360 ${ry+4} L0 ${ry+4}Z" fill="#E6D8BF"/>${rect(0,ry,360,220-ry,0,NAVY)}${rect(0,ry,360,3,0,'#2A3567')}`;
+const lane=(y,cls='')=>`<line x1="-50" y1="${y}" x2="410" y2="${y}" stroke="${AMBER}" stroke-width="4" stroke-linecap="round" stroke-dasharray="28 18" class="${cls}"/>`;
+/* driver's seat view (right-hand drive): windscreen, mirror, pillars, dashboard, wheel */
+const cabin=(drive)=>`${rect(0,0,360,220,0,SKY)}<path d="M0 100 Q90 78 180 90 T360 84 L360 142 L0 142Z" fill="${SKY_2}"/>
+  <path d="M36 142 L168 84 L192 84 L324 142Z" fill="${NAVY}"/><path d="M36 142 L168 84 M324 142 L192 84" stroke="${CREAM}" stroke-width="2" opacity=".55" fill="none"/>
+  <line x1="180" y1="87" x2="180" y2="142" stroke="${AMBER}" stroke-width="3" stroke-dasharray="8 7" class="${drive?'lanev':''}"/>
+  ${rect(0,0,360,9,0,NAVY)}<path d="M0 0 L24 0 L8 142 L0 142Z" fill="${NAVY}"/><path d="M360 0 L336 0 L352 142 L360 142Z" fill="${NAVY}"/>
+  ${rect(176,0,8,14,0,NAVY)}${rect(132,12,96,30,10,NAVY)}${rect(137,17,86,20,6,'#9FBDB9')}<path d="M150 17 L166 17 L154 37 L138 37 Z" fill="${WHITE}" opacity=".35"/>
+  <path d="M0 142 Q180 136 360 142 L360 220 L0 220Z" fill="${SAND}"/><path d="M0 142 Q180 136 360 142 L360 147 Q180 141 0 147Z" fill="${SAND_2}"/>
+  <rect x="18" y="160" width="56" height="32" rx="7" fill="none" stroke="${SAND_2}" stroke-width="2.5"/>${rect(38,172,16,4,2,SAND_2)}
+  ${rect(150,182,26,13,4,SAND_2)}${rect(184,182,26,13,4,SAND_2)}${[0,1,2].map(i=>rect(153,185+i*3.4,20,1.4,.7,NAVY,'opacity=".35"')+rect(187,185+i*3.4,20,1.4,.7,NAVY,'opacity=".35"')).join('')}${rect(150,200,60,20,5,NAVY_3)}${rect(156,205,22,4,2,MIST)}${rect(156,212,34,3,1.5,GREY,'opacity=".6"')}
+  <path d="M230 152 Q292 116 354 152 L354 164 L230 164Z" fill="${NAVY_3}"/>${arc(268,158,13,200,340,CREAM,2.5)}${arc(316,158,13,200,340,CREAM,2.5)}<path d="M268 158 L261 149 M316 158 L324 150" stroke="${CORAL}" stroke-width="2.2" stroke-linecap="round" fill="none"/>${circle(268,158,2,CREAM)}${circle(316,158,2,CREAM)}
+  <path d="M292 236 L236 222 M292 236 L348 222" stroke="${NAVY}" stroke-width="10" stroke-linecap="round"/><circle cx="292" cy="236" r="62" fill="none" stroke="${NAVY}" stroke-width="13"/>${circle(292,236,21,NAVY)}`;
+const camBody=(x,cls='')=>`<g class="${cls}">${rect(x+16,6,8,10,0,NAVY)}${rect(x,14,40,28,7,NAVY)}${rect(x+5,19,30,18,4,NAVY_3)}</g>`;
+const camRec=(x)=>`${rect(x+5,19,30,18,4,NAVY_2)}${circle(x+13,28,3.4,CORAL,'class="blink"')}${rect(x+19,26,12,4,2,CREAM)}`;
+const zoomRec=()=>`<line x1="270" y1="42" x2="292" y2="66" stroke="${NAVY}" stroke-width="2.5" stroke-linecap="round"/>${circle(306,92,35,WHITE)}<circle cx="306" cy="92" r="35" fill="none" stroke="${NAVY}" stroke-width="3"/>${rect(279,76,54,32,7,NAVY_2)}${circle(292,92,5.5,CORAL,'class="blink"')}${text(315,97,13,'REC',CREAM,1)}`;
+/* cams: 'dual' = off layer + on layer for the plug scenes, 'q' = question marks on the screens */
+const cams=(mode)=>camBody(84)+camBody(236)+(mode==='dual'?`<g class="plug-on">${camRec(84)}${camRec(236)}${check(84,42,8.5)}${check(236,42,8.5)}${zoomRec()}</g>`:mode==='q'?text(104,34,15,'?',AMBER)+text(256,34,15,'?',AMBER):'');
+/* adapter with two sockets, each camera's own plug, and the adapter's plug going into the car's 12V socket */
+const wiring=()=>`<defs><clipPath id="aboveHole"><rect x="0" y="0" width="360" height="204"/></clipPath></defs>
+  <ellipse cx="104" cy="204" rx="16" ry="7.5" fill="${SAND_3}"/><ellipse cx="104" cy="204" rx="10" ry="4.8" fill="${NAVY}"/>${text(72,208,10,'12V')}
+  <g clip-path="url(#aboveHole)"><path class="plug-lead" d="M176 155 C150 152 104 150 104 173" fill="none" stroke="${NAVY}" stroke-width="2.6" stroke-linecap="round" vector-effect="non-scaling-stroke"/><g class="carplug">${rect(99,185,10,12,2.5,GREY)}${rect(95,172,18,15,5,AMBER)}${rect(95,180,18,7,3.5,AMBER_DARK)}</g></g>
+  ${rect(162,147,13,9,3,NAVY)}${rect(185,147,13,9,3,NAVY)}${rect(156,152,48,17,6,AMBER)}${rect(156,161,48,8,4,AMBER_DARK)}
+  ${circle(180,158.5,2.5,WHITE,'class="plug-off"')}${circle(180,158.5,2.5,CORAL,'class="plug-on"')}
+  <g class="camplugs"><path d="M168.5 121 C168 96 104 74 104 20 M191.5 121 C192 96 256 74 256 20" fill="none" stroke="${WHITE}" stroke-width="4.4" stroke-linecap="round"/><path d="M168.5 121 C168 96 104 74 104 20 M191.5 121 C192 96 256 74 256 20" fill="none" stroke="${NAVY}" stroke-width="2.6" stroke-linecap="round"/>
+  ${rect(165,130,7,10,2,GREY)}${rect(188,130,7,10,2,GREY)}${rect(162,120,13,11,4,NAVY_2)}${rect(185,120,13,11,4,NAVY_2)}</g>`;
+const phone=(x,y,w,h,inner='',scr=WHITE)=>`${rect(x,y,w,h,w*.16,NAVY)}${rect(x+w*.08,y+w*.14,w*.84,h-w*.34,w*.07,scr)}${inner}`;
+const barrier=(x,y)=>`<g>${rect(x+6,y+20,6,34,0,NAVY_2)}${rect(x+84,y+20,6,34,0,NAVY_2)}${rect(x,y,96,22,5,WHITE)}${[0,1,2,3].map(i=>`<path d="M${x+6+i*24} ${y} L${x+18+i*24} ${y} L${x+8+i*24} ${y+22} L${x-4+i*24} ${y+22} Z" fill="${CORAL}"/>`).join('')}</g>`;
+const post=(x,letter,solid,ry=150)=>`${rect(x-2.5,ry-70,5,70,0,GREY)}${solid?circle(x,ry-78,21,NAVY):circle(x,ry-78,21,WHITE)+`<circle cx="${x}" cy="${ry-78}" r="19" fill="none" stroke="${NAVY}" stroke-width="4"/>`}${text(x,ry-70,23,letter,solid?WHITE:NAVY)}`;
+const clockIcon=(cx,cy,r)=>`${circle(cx,cy,r,WHITE)}<circle cx="${cx}" cy="${cy}" r="${r-1.5}" fill="none" stroke="${NAVY}" stroke-width="3"/><path d="M${cx} ${cy-r*.55} L${cx} ${cy} L${cx+r*.4} ${cy+r*.2}" fill="none" stroke="${NAVY}" stroke-width="3" stroke-linecap="round"/>`;
+
+/* ---------- card pictures ---------- */
+const S={};
+S.job=svg('A car with two dash cams recording the road ahead',`${outside(156)}
+  <g class="drift">${rect(120,40,54,14,7,WHITE,'opacity=".8"')}${rect(140,30,30,14,7,WHITE,'opacity=".8"')}${rect(-40,70,44,12,6,WHITE,'opacity=".7"')}</g>
+  ${rect(30,96,26,60,3,MIST)}${rect(60,112,20,44,3,'#CADBD8')}${rect(252,104,30,52,3,'#CADBD8')}${rect(286,120,22,36,3,MIST)}${rect(0,156,360,64,0,NAVY)}${rect(0,156,360,3,0,'#2A3567')}
+  ${lane(192,'lane')}<polygon points="200,113 360,86 360,152" fill="${AMBER}" class="pulse"/>${use('car',60,88,204,'bob')}
+  ${rect(16,16,76,28,14,NAVY)}${circle(34,30,6,CORAL,'class="blink"')}${text(64,35,13,'REC',CREAM,1)}`);
+S.before=svg('A phone message confirming you are coming, a clock with your session marked, and a fuel pump',`${rect(0,0,360,220,0,CREAM)}${rect(0,190,360,30,0,'#E6D8BF')}
+  ${phone(36,22,104,178)}${rect(52,56,58,22,11,'#E6E9F0')}${rect(60,64,30,5,2.5,GREY)}
+  <g class="pop">${rect(64,92,62,30,13,SAGE)}<path d="M84 107 L92 115 L107 99" fill="none" stroke="${WHITE}" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/></g>${rect(52,150,72,16,8,'#E6E9F0')}
+  ${circle(232,96,60,WHITE)}<path d="M232 96 L232 44 A52 52 0 0 1 284 96 Z" fill="${AMBER}" opacity=".55"/><circle cx="232" cy="96" r="58" fill="none" stroke="${NAVY}" stroke-width="5"/>
+  ${[0,90,180,270].map(a=>`<line x1="${232+46*Math.cos(a*Math.PI/180)}" y1="${96+46*Math.sin(a*Math.PI/180)}" x2="${232+52*Math.cos(a*Math.PI/180)}" y2="${96+52*Math.sin(a*Math.PI/180)}" stroke="${NAVY}" stroke-width="4" stroke-linecap="round"/>`).join('')}
+  <line x1="232" y1="96" x2="232" y2="56" stroke="${NAVY}" stroke-width="5" stroke-linecap="round" class="clock-hand" style="transform-origin:232px 96px"/><line x1="232" y1="96" x2="254" y2="96" stroke="${CORAL}" stroke-width="5" stroke-linecap="round"/>${circle(232,96,5,NAVY)}
+  ${rect(304,138,36,52,7,CORAL)}${rect(310,145,24,15,3,WHITE)}<path d="M304 152 Q292 152 292 166 L292 178" fill="none" stroke="${NAVY}" stroke-width="4" stroke-linecap="round"/>${rect(287,176,10,13,3,NAVY)}`);
+S.setup=svg("View from the driver's seat: two cameras at the top of the windscreen, one each side of the mirror, both looking at the road ahead",`${cabin(0)}
+  <path d="M84 24 C50 22 30 40 22 132" fill="none" stroke="${NAVY}" stroke-width="2.4" stroke-linecap="round"/><path d="M276 24 C310 22 330 40 338 132" fill="none" stroke="${NAVY}" stroke-width="2.4" stroke-linecap="round"/>
+  <g class="vf"><polygon points="104,44 56,66 212,66" fill="${AMBER}" opacity=".2"/><rect x="56" y="66" width="156" height="58" fill="${AMBER}" opacity=".15"/><path d="M104 44 L56 66 M104 44 L212 66 M104 44 L56 124 M104 44 L212 124" fill="none" stroke="${AMBER}" stroke-width="1.5" stroke-linecap="round"/>
+  <polygon points="256,44 148,66 304,66" fill="${AMBER}" opacity=".2"/><rect x="148" y="66" width="156" height="58" fill="${AMBER}" opacity=".15"/><path d="M256 44 L148 66 M256 44 L304 66 M256 44 L148 124 M256 44 L304 124" fill="none" stroke="${AMBER}" stroke-width="1.5" stroke-linecap="round"/>
+  <path d="M56 66 L304 66 M212 66 L212 124 M148 66 L148 124" fill="none" stroke="${AMBER_DARK}" stroke-width="2" stroke-dasharray="6 4" stroke-linecap="round"/><path d="M56 66 L56 124 L304 124 L304 66" fill="none" stroke="${AMBER}" stroke-width="1.8" stroke-linejoin="round" stroke-linecap="round"/></g>
+  ${camBody(84,'drop')}${camBody(236,'drop')}
+  <g class="tickin" style="animation-delay:.6s">${check(84,42,9)}</g><g class="tickin" style="animation-delay:.85s">${check(236,42,9)}</g>`);
+S.power=svg("View from the driver's seat. Each camera plugs into the two-socket adapter, and the adapter plugs into the car's 12V socket. Then both screens show REC.",`${cabin(0)}${wiring()}${cams('dual')}`);
+S.odo=svg('The odometer on the dashboard and a phone taking a photo of it',`${rect(0,0,360,220,0,SAND)}${rect(0,0,360,26,0,SAND_2)}
+  ${rect(18,34,220,172,26,NAVY)}${circle(128,102,58,NAVY_3)}
+  ${[0,1,2,3,4,5,6,7,8].map(k=>{const a=(150+k*30)*Math.PI/180;return `<line x1="${128+46*Math.cos(a)}" y1="${102+46*Math.sin(a)}" x2="${128+54*Math.cos(a)}" y2="${102+54*Math.sin(a)}" stroke="${CREAM}" stroke-width="3" stroke-linecap="round"/>`}).join('')}
+  <line x1="128" y1="102" x2="128" y2="60" stroke="${CORAL}" stroke-width="4.5" stroke-linecap="round" class="needle" style="transform-origin:128px 102px"/>${circle(128,102,6,CREAM)}
+  ${rect(72,158,112,34,7,NAVY_DARK)}${'04731'.split('').map((d,i)=>text(88+i*18,182,20,d,CREAM,1)).join('')}
+  <clipPath id="dc"><rect x="166" y="162" width="15" height="26" rx="3"/></clipPath>${rect(166,162,15,26,3,AMBER)}<g clip-path="url(#dc)"><g class="roll">${[0,1,2,3,4,5,6,7,8,9].map(d=>text(173.5,182+d*30,20,d,NAVY,1)).join('')}</g></g>
+  ${phone(256,44,84,160,'',NAVY_DARK)}<path d="M272 72 L272 82 M272 72 L282 72 M324 72 L314 72 M324 72 L324 82 M272 138 L272 128 M272 138 L282 138 M324 138 L314 138 M324 138 L324 128" stroke="${AMBER}" stroke-width="3" fill="none" stroke-linecap="round"/>
+  ${rect(277,96,42,18,4,NAVY_3)}${text(298,109,11,'047318',CREAM,1)}${circle(298,188,7,WHITE)}${rect(263,56,70,118,6,WHITE,'class="flash"')}`);
+S.road=svg('Driving with the traffic at normal speed',`${outside(156,0)}
+  ${circle(58,60,40,WHITE)}${arc(58,60,29,200,245,CORAL)}${arc(58,60,29,252,288,SAGE)}${arc(58,60,29,295,340,CORAL)}
+  <line x1="58" y1="60" x2="58" y2="36" stroke="${NAVY}" stroke-width="4.5" stroke-linecap="round" class="needle" style="transform-origin:58px 60px"/>${circle(58,60,5.5,NAVY)}
+  ${lane(192,'lane-slow')}${use('carB',4,126,112,'jam')}${use('car',124,126,112,'bob')}${use('carC',244,126,112,'jam')}`);
+const topCar=(x,y,col)=>`${rect(x,y,36,64,11,col)}${rect(x+5,y+13,26,13,4,'#D5E6E4')}${rect(x+6,y+45,24,8,3,'#D5E6E4')}${rect(x+4,y+2,8,4,2,AMBER)}${rect(x+24,y+2,8,4,2,AMBER)}`;
+const cross=(x,y,r)=>`${circle(x,y,r,CORAL)}<path d="M${x-r*.4} ${y-r*.4} L${x+r*.4} ${y+r*.4} M${x+r*.4} ${y-r*.4} L${x-r*.4} ${y+r*.4}" stroke="${WHITE}" stroke-width="${r*.26}" stroke-linecap="round"/>`;
+const road3=(h)=>`${rect(0,0,360,h,0,'#E6D8BF')}${rect(70,0,220,h,0,NAVY)}${rect(290,0,14,h,0,SAND_3)}${rect(70,0,4,h,0,CREAM,'opacity=".7"')}
+  <line x1="143" y1="-30" x2="143" y2="${h+30}" stroke="${CREAM}" stroke-width="3" stroke-dasharray="16 14" class="lanev2"/><line x1="217" y1="-30" x2="217" y2="${h+30}" stroke="${CREAM}" stroke-width="3" stroke-dasharray="16 14" class="lanev2"/>`;
+S.lanes=svg('A three-lane road seen from above: drive in the kerb lane or the second lane, and use the far right lane only to turn right',`${road3(220)}
+  ${topCar(88.5,26,SAGE)}<g class="bob">${topCar(162,92,CORAL)}</g>${check(106.5,186,15)}${check(180,186,15)}<g class="pop" style="animation-duration:4s">${circle(253.5,110,23,AMBER)}<path d="M245 124 L245 110 Q245 103 252 103 L263 103 M257 96.5 L263.5 103 L257 109.5" fill="none" stroke="${NAVY}" stroke-width="4.5" stroke-linecap="round" stroke-linejoin="round"/></g>`);
+S.finish=svg('The car drives from one end to the other and back, and finishes where it started',`${outside(150,0)}${lane(190)}${post(42,'A',1)}${post(318,'B',0)}
+  <g class="trip"><use href="#car" x="14" y="130" width="96" height="46"/></g>
+  <g class="timesup">${rect(126,46,108,34,17,WHITE)}${clockIcon(146,63,11)}${text(193,68,12,"TIME'S UP",CORAL)}</g>
+  <g class="finish forA">${rect(74,36,4,50,0,NAVY)}${[0,1,2].map(r=>[0,1,2,3].map(c=>rect(78+c*8,36+r*8,8,8,0,(r+c)%2?WHITE:NAVY)).join('')).join('')}</g>
+  <g class="finish forB">${rect(282,36,4,50,0,NAVY)}${[0,1,2].map(r=>[0,1,2,3].map(c=>rect(250+c*8,36+r*8,8,8,0,(r+c)%2?WHITE:NAVY)).join('')).join('')}</g>`);
+S.route=svg('Road closed ahead: stop, tell your supervisor, wait for OK, then go around only the closed part',`${outside(150)}${lane(190)}
+  ${barrier(232,118)}${use('carS',30,126,112)}${circle(139,155,4,AMBER,'class="blink"')}
+  ${phone(64,40,34,58)}<path d="M106 54 Q114 68 106 82" fill="none" stroke="${SAGE}" stroke-width="4" stroke-linecap="round" class="wave"/><path d="M116 48 Q128 68 116 88" fill="none" stroke="${SAGE}" stroke-width="4" stroke-linecap="round" class="wave w2"/>
+  <g class="pop">${rect(140,44,66,32,16,SAGE)}${text(173,66,15,'OK',WHITE)}</g>`);
+S.hands=svg("View from the driver's seat while driving: don't touch the cameras, don't use the phone",`<g data-s="2">${cabin(1)}${wiring()}${camBody(84)}${camBody(236)}${camRec(84)}${camRec(236)}</g>
+  <g class="shake">${no(104,28,27)}</g><g class="shake" style="animation-delay:.3s">${no(256,28,27)}</g>${phone(16,134,40,64)}<g class="shake">${no(36,165,30)}</g>`);
+S.wrong=svg('First call your supervisor. No answer: message the group chat. Emergency: call 000.',`${rect(0,0,360,220,0,CREAM)}${rect(0,190,360,30,0,'#E6D8BF')}
+  ${phone(26,26,88,164)}${circle(70,84,18,MIST)}<path d="M46 132 Q70 104 94 132 L94 140 L46 140Z" fill="${MIST}"/>${circle(70,160,11,SAGE)}
+  <path d="M122 80 Q130 96 122 112" fill="none" stroke="${SAGE}" stroke-width="4" stroke-linecap="round" class="wave"/><path d="M132 72 Q146 96 132 120" fill="none" stroke="${SAGE}" stroke-width="4" stroke-linecap="round" class="wave w2"/>
+  ${circle(30,30,13,AMBER)}${text(30,35.5,15,'1',NAVY)}
+  <g class="pop" style="animation-duration:4s">${rect(158,62,92,76,16,WHITE)}${circle(180,86,9,MIST)}${circle(204,86,9,AMBER)}${circle(228,86,9,NAVY_2)}${rect(172,106,64,6,3,GREY)}${rect(172,118,42,6,3,GREY)}<path d="M176 136 L176 152 L194 136Z" fill="${WHITE}"/></g>
+  ${circle(162,66,13,AMBER)}${text(162,71.5,15,'2',NAVY)}
+  <g class="shake">${circle(306,104,40,CORAL)}${text(306,114,27,'000',WHITE)}</g>`);
+S.sd=svg("The back of a camera with its screen. Don't take the SD card out of its slot.",`${rect(0,0,360,220,0,CREAM)}${rect(0,186,360,34,0,'#E6D8BF')}<ellipse cx="146" cy="186" rx="100" ry="6" fill="${NAVY_DARK}" opacity=".18"/>
+  ${rect(134,22,24,26,0,NAVY)}<g class="tug">${rect(214,84,28,36,4,AMBER)}${rect(232,90,4,24,1,NAVY,'opacity=".4"')}</g>
+  ${rect(60,44,172,116,20,NAVY)}${rect(76,60,140,84,10,NAVY_2)}${circle(98,82,7,CORAL,'class="blink"')}${text(134,88,17,'REC',CREAM,1)}${rect(90,116,70,6,3,CREAM,'opacity=".5"')}${rect(90,128,44,6,3,CREAM,'opacity=".35"')}
+  ${rect(224,80,8,44,3,NAVY_DARK)}
+  <path d="M262 132 L284 132 M276 124 L285 132 L276 140" fill="none" stroke="${CORAL}" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" class="tug"/><g class="stopsign">${no(252,102,34)}</g>`);
+const camCable=(x)=>`${rect(x,30,40,28,7,NAVY)}${rect(x+5,35,30,18,4,NAVY_3)}<path d="M${x+40} 46 C${x+54} 46 ${x+48} 62 ${x+62} 62" fill="none" stroke="${NAVY}" stroke-width="2.5" stroke-linecap="round"/>${rect(x+73,59.5,7,5,1.5,GREY)}${rect(x+62,56,12,12,4,NAVY_2)}`;
+S.back=svg('Hand back both cameras, with their cables, and the adapter',`${rect(0,0,360,220,0,CREAM)}${rect(0,186,360,34,0,'#E6D8BF')}
+  <g class="tickin">${camCable(22)}${check(62,30,9)}</g><g class="tickin" style="animation-delay:.25s">${camCable(122)}${check(162,30,9)}</g>
+  <g class="tickin" style="animation-delay:.5s">${rect(248,30,12,9,3,NAVY)}${rect(270,30,12,9,3,NAVY)}${rect(240,36,50,19,6,AMBER)}${rect(240,46,50,9,4.5,AMBER_DARK)}<path d="M290 46 C304 46 298 62 310 62" fill="none" stroke="${NAVY}" stroke-width="2.5" stroke-linecap="round"/>${rect(322,59.5,7,5,1.5,GREY)}${rect(310,56,13,12,4,AMBER)}${check(290,32,9)}</g>
+  <path d="M64 80 Q100 112 150 126 M164 80 L174 120 M282 80 Q256 110 212 126" fill="none" stroke="${SAGE}" stroke-width="3.5" stroke-dasharray="7 7" stroke-linecap="round" class="dash"/>
+  <ellipse cx="180" cy="192" rx="78" ry="6" fill="${NAVY_DARK}" opacity=".18"/>
+  <g class="nudge"><path d="M118 132 L242 132 L234 190 L126 190 Z" fill="${SAND_3}"/><path d="M118 132 L242 132 L239 150 L121 150 Z" fill="${SAND_2}"/>${rect(162,162,36,8,4,NAVY,'opacity=".35"')}</g>`);
+S.keys=svg('Four key points: stay safe, on time, recording, on route',`${rect(0,0,360,220,0,CREAM)}
+  ${[10,96,182,268].map(x=>rect(x,26,82,150,14,WHITE)).join('')}
+  <g class="tickin"><path d="M51 52 L72 61 L72 77 Q72 96 51 105 Q30 96 30 77 L30 61 Z" fill="${SAGE}"/><path d="M41 78 L49 86 L62 71" fill="none" stroke="${WHITE}" stroke-width="4.5" stroke-linecap="round" stroke-linejoin="round"/></g>
+  <g class="tickin" style="animation-delay:.25s">${clockIcon(137,78,25)}</g>
+  <g class="tickin" style="animation-delay:.5s">${rect(196,60,54,36,8,NAVY)}${circle(210,78,6.5,CORAL,'class="blink"')}${rect(221,75,22,6,3,CREAM)}</g>
+  <g class="tickin" style="animation-delay:.75s">${rect(285,54,48,48,10,NAVY)}<path d="M309 92 L309 64 M299 74 L309 63 L319 74" fill="none" stroke="${AMBER}" stroke-width="4.5" stroke-linecap="round" stroke-linejoin="round"/></g>
+  ${[51,137,223,309].map((x,i)=>text(x,148,26,i+1,NAVY)).join('')}`);
+
+/* ---------- quiz pictures: set the scene, never show the answer ---------- */
+const QH=170, qsvg=(l,i,h=QH)=>svg(l,i,h);
+const QS=[
+  qsvg('An empty windscreen and two cameras waiting to be mounted',`${cabin(0)}${rect(128,150,104,20,6,SAND_3)}${rect(140,134,40,28,7,NAVY)}${rect(145,139,30,18,4,NAVY_3)}${rect(184,134,40,28,7,NAVY)}${rect(189,139,30,18,4,NAVY_3)}${qmark(180,74)}`,196),
+  qsvg('Two cameras, plugged in. What do the screens need to show?',`<g data-s="2">${cabin(0)}${wiring().replace(/class="plug-on"/g,'').replace(/class="plug-off"/g,'opacity="0"')}</g>${cams('q')}`,196),
+  qsvg('A recording camera, an adapter plug, an SD card and a settings icon',`${rect(0,0,360,QH,0,CREAM)}${rect(134,12,92,40,10,NAVY)}${circle(156,32,6.5,CORAL,'class="blink"')}${text(190,37,14,'REC',CREAM,1)}${qmark(260,32)}
+    ${[26,134,242].map(x=>rect(x,70,92,84,14,WHITE)).join('')}
+    ${rect(52,100,34,22,8,AMBER)}${rect(52,111,34,11,5.5,AMBER_DARK)}${rect(84,104,16,14,3,GREY)}
+    <path d="M162 86 L190 86 L200 96 L200 140 L162 140 Z" fill="${NAVY_2}"/>${[0,1,2].map(i=>rect(167+i*8,90,5,11,1,AMBER)).join('')}
+    ${[0,1,2,3,4,5,6,7].map(k=>`<rect x="282.5" y="87" width="11" height="14" rx="2.5" fill="${NAVY}" transform="rotate(${k*45} 288 112)"/>`).join('')}${circle(288,112,19,NAVY)}${circle(288,112,8,WHITE)}`),
+  qsvg('An odometer, a phone camera and a clock',`${rect(0,0,360,QH,0,SAND)}${rect(18,44,170,82,18,NAVY)}${rect(34,66,138,38,8,NAVY_DARK)}${'047318'.split('').map((d,i)=>text(52+i*20.5,93,22,d,CREAM,1)).join('')}
+    ${phone(210,20,64,130,'',NAVY_DARK)}${circle(242,139,6,WHITE)}${clockIcon(316,62,26)}${qmark(316,128)}`),
+  qsvg('Time is up while the car is halfway between A and B',`${outside(108,0)}${lane(146)}${post(42,'A',1,108)}${post(318,'B',0,108)}${use('car',132,84,96,'bob')}${rect(126,14,108,34,17,WHITE)}${clockIcon(146,31,11)}${text(193,36,12,"TIME'S UP",CORAL)}`),
+  qsvg('Slow traffic, cars close together',`${outside(108,0)}${lane(146,'lane-slow')}${use('carC',-30,80,104,'jam')}${use('car',82,80,104,'bob')}${use('carB',194,80,104,'jam')}${use('carC',306,80,104,'jam')}${qmark(180,40)}`),
+  qsvg('A road closed barrier ahead on the route',`${outside(108)}${lane(146)}${barrier(236,76)}${use('carS',34,84,108)}${circle(140,112,4,AMBER,'class="blink"')}${qmark(180,44)}`),
+  qsvg('Calling the supervisor: no answer',`${rect(0,0,360,QH,0,CREAM)}${phone(44,14,84,142)}${circle(86,62,16,MIST)}<path d="M64 104 Q86 80 108 104 L108 110 L64 110Z" fill="${MIST}"/>${circle(86,126,9,CORAL)}
+    <g class="blink">${circle(150,52,5,GREY)}${circle(168,52,5,GREY)}${circle(186,52,5,GREY)}</g>${rect(150,78,150,44,22,WHITE)}${circle(176,100,12,CORAL)}<path d="M170 94 L182 106 M182 94 L170 106" stroke="${WHITE}" stroke-width="3.5" stroke-linecap="round"/>${rect(198,90,84,7,3.5,GREY)}${rect(198,104,54,7,3.5,GREY)}${qmark(316,44)}`),
+  qsvg('Two cars waiting at the same start point',`${outside(108,0)}${lane(146)}${post(42,'A',1,108)}${use('carBS',64,84,104)}${use('carS',180,84,104)}${clockIcon(310,42,26)}${qmark(254,34)}`),
+  qsvg('A three-lane road seen from above, with a car choosing a lane',`${road3(QH)}${[106.5,180,253.5].map(x=>text(x,52,30,'?',AMBER)).join('')}<g class="bob">${topCar(162,98,CORAL)}</g>`)
+];
+
+const KICON={
+  safe:`<svg viewBox="0 0 32 32" aria-hidden="true"><path d="M16 3 L27 7.5 L27 15 Q27 24 16 29 Q5 24 5 15 L5 7.5 Z" fill="${SAGE}"/><path d="M11 16 L15 20 L22 12" fill="none" stroke="${WHITE}" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg>`,
+  clock:`<svg viewBox="0 0 32 32" aria-hidden="true">${clockIcon(16,16,13)}</svg>`,
+  rec:`<svg viewBox="0 0 32 32" aria-hidden="true">${rect(3,7,26,18,5,NAVY)}${circle(11,16,4,CORAL)}${rect(17,14,8,4,2,CREAM)}</svg>`,
+  route:`<svg viewBox="0 0 32 32" aria-hidden="true">${rect(3,3,26,26,6,NAVY)}<path d="M16 24 L16 9 M10 14 L16 8 L22 14" fill="none" stroke="${AMBER}" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg>`};
 const keyList=(short)=>`<ol class="keys${short?' short':''}">${KEYS.map(k=>`<li>${KICON[k.i]}<div><b>${k.t}</b><span>${k.d}</span></div></li>`).join('')}</ol>`;
 
-/* ---------- theme switch: follows the system until the viewer taps it ---------- */
-const root=document.documentElement, themeBtn=document.getElementById('themeBtn');
-const mq=window.matchMedia?matchMedia('(prefers-color-scheme: dark)'):null;
-const SUN=`<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="4.6" fill="currentColor"/>${[0,45,90,135,180,225,270,315].map(a=>`<line x1="${12+7.6*Math.cos(a*Math.PI/180)}" y1="${12+7.6*Math.sin(a*Math.PI/180)}" x2="${12+10.2*Math.cos(a*Math.PI/180)}" y2="${12+10.2*Math.sin(a*Math.PI/180)}" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/>`).join('')}</svg>`;
-const MOON=`<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 14.5 A8.5 8.5 0 1 1 9.5 4 A6.8 6.8 0 0 0 20 14.5 Z" fill="currentColor"/></svg>`;
-const isDark=()=>root.dataset.theme?root.dataset.theme==='dark':!!(mq&&mq.matches);
-const paintTheme=()=>{const d=isDark();themeBtn.innerHTML=d?SUN:MOON;themeBtn.setAttribute('aria-label',d?'Switch to daylight mode':'Switch to dark mode');themeBtn.title=d?'Switch to daylight mode':'Switch to dark mode';};
-themeBtn.onclick=()=>{root.dataset.theme=isDark()?'light':'dark';paintTheme();};
-if(mq&&mq.addEventListener) mq.addEventListener('change',paintTheme);
-new MutationObserver(paintTheme).observe(root,{attributes:true,attributeFilter:['data-theme']});
-paintTheme();
+/* SHARED:theme */
+/* ---------- day / night switch (GUIDE-PRINCIPLES.md 4.4): follows the device until the reader taps the button.
+   The icon shows the mode it switches to. Not remembered. ---------- */
+(() => {
+  const root = document.documentElement, btn = document.getElementById('themeBtn');
+  const mq = window.matchMedia ? matchMedia('(prefers-color-scheme: dark)') : null;
+  const SUN = `<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="4.6" fill="currentColor"/>${[0, 45, 90, 135, 180, 225, 270, 315].map(a => `<line x1="${12 + 7.6 * Math.cos(a * Math.PI / 180)}" y1="${12 + 7.6 * Math.sin(a * Math.PI / 180)}" x2="${12 + 10.2 * Math.cos(a * Math.PI / 180)}" y2="${12 + 10.2 * Math.sin(a * Math.PI / 180)}" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/>`).join('')}</svg>`;
+  const MOON = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 14.5 A8.5 8.5 0 1 1 9.5 4 A6.8 6.8 0 0 0 20 14.5 Z" fill="currentColor"/></svg>';
+  const isDark = () => root.dataset.theme ? root.dataset.theme === 'dark' : !!(mq && mq.matches);
+  const paint = () => {
+    const d = isDark(), label = d ? 'Switch to light mode' : 'Switch to dark mode';
+    btn.innerHTML = d ? SUN : MOON; btn.setAttribute('aria-label', label); btn.title = label;
+  };
+  btn.addEventListener('click', () => { root.dataset.theme = isDark() ? 'light' : 'dark'; paint(); });
+  if (mq) mq.addEventListener ? mq.addEventListener('change', paint) : mq.addListener && mq.addListener(paint);   // older Safari: addListener
+  new MutationObserver(paint).observe(root, {attributes: true, attributeFilter: ['data-theme']});
+  paint();
+})();
+/* /SHARED:theme */
 
 /* ---------- flow ---------- */
-const N_=CARDS.length,Q=QUIZ.length;
+const NCARDS=CARDS.length,NQUIZ=QUIZ.length;
+/* Pages are numbered: 0 = start, 1..NCARDS = the cards, then the quiz, the name page and the finish page. */
+const PAGE={start:0,quiz:NCARDS+1,name:NCARDS+2,done:NCARDS+3};
+const isCard=n=>n>=1&&n<=NCARDS;
 const view=document.getElementById('view'),backBtn=document.getElementById('backBtn'),routeEl=document.getElementById('route');
 let step=0,qi=0,quizStarted=false,name='';
-const sel=Array(Q).fill(null),sub=Array(Q).fill(false),ok=Array(Q).fill(false);
-const seen=Array(N_+1).fill(false);   // seen[n]: card n has been opened (not just passed while dragging the strip)
-const nCorrect=()=>ok.filter(Boolean).length,allCorrect=()=>nCorrect()===Q;
-function nextTarget(from){for(let k=from+1;k<Q;k++)if(!ok[k])return k;for(let k=0;k<=from;k++)if(!ok[k])return k;return -1;}
+const sel=Array(NQUIZ).fill(null),sub=Array(NQUIZ).fill(false),ok=Array(NQUIZ).fill(false);
+const seen=Array(PAGE.quiz).fill(false);   // seen[n]: card n has been opened (not just passed while dragging the strip)
+const nCorrect=()=>ok.filter(Boolean).length,allCorrect=()=>nCorrect()===NQUIZ;
+function nextTarget(from){for(let k=from+1;k<NQUIZ;k++)if(!ok[k])return k;for(let k=0;k<=from;k++)if(!ok[k])return k;return -1;}
 const inStage=g=>CARDS.filter(c=>c.g===g).length, before=(i)=>CARDS.slice(0,i).filter(c=>c.g===CARDS[i].g).length;
-const QUIZ_LEG=LEGS.length-1, QUIZ_DOT=N_+1, LASTPOS=N_;   // the quiz dot: data-n N_+1, position N_ (the end of the line)
-/* All dots are evenly spaced along the line: card n at position n-1, the quiz at position N_.
+const QUIZ_LEG=LEGS.length-1, QUIZ_DOT=PAGE.quiz, LASTPOS=NCARDS;   // the quiz dot: data-n PAGE.quiz, position NCARDS (the end of the line)
+/* All dots are evenly spaced along the line: card n at position n-1, the quiz at position NCARDS.
    Key dot = first card of a stage; for the quiz stage the key dot is the quiz itself. */
 const at=k=>`calc(7px + (100% - 14px) * ${k/LASTPOS})`;
 const KEYPOS=LEGS.map((l,g)=>g===QUIZ_LEG?LASTPOS:CARDS.findIndex(c=>c.g===g));
@@ -494,23 +535,23 @@ layoutLabels();addEventListener('resize',layoutLabels);if(document.fonts&&docume
 function progress(){
   let pos=-1,stage=-1,label;
   if(step===0){label='About 7 minutes';}
-  else if(step<=N_){pos=step-1;stage=CARDS[step-1].g;label=`Card ${step} of ${N_}`;}
-  else if(step===N_+1){pos=LASTPOS;stage=QUIZ_LEG;label=`Quiz · ${nCorrect()} of ${Q} correct`;}
+  else if(step<=NCARDS){pos=step-1;stage=CARDS[step-1].g;label=`Card ${step} of ${NCARDS}`;}
+  else if(step===PAGE.quiz){pos=LASTPOS;stage=QUIZ_LEG;label=`Quiz · ${nCorrect()} of ${NQUIZ} correct`;}
   else{pos=LASTPOS;stage=QUIZ_LEG;label='Finished';}
   document.getElementById('count').textContent=label;
   routeEl.querySelector('.fill').style.width=`calc((100% - 14px) * ${Math.max(pos,0)/LASTPOS})`;   // the line runs to the current dot
   LABELS.forEach((s,i)=>s.classList.toggle('now',i===stage));
-  DOTS.forEach(d=>{const n=+d.dataset.n,now=n===QUIZ_DOT?step>N_:n===step;
+  DOTS.forEach(d=>{const n=+d.dataset.n,now=n===QUIZ_DOT?step>NCARDS:n===step;
     d.classList.toggle('now',now);d.classList.toggle('seen',!now&&(n===QUIZ_DOT?quizStarted:seen[n]));
     if(n===QUIZ_DOT)d.disabled=!quizStarted;
     if(now)d.setAttribute('aria-current','step');else d.removeAttribute('aria-current');});
   backBtn.hidden=step===0;
 }
 function paint(html){view.innerHTML=DEFS+html;progress();const f=view.querySelector('[data-focus]');if(f)f.focus({preventScroll:true});}
-backBtn.onclick=()=>{if(step<=N_)step--;else if(step===N_+1){if(qi>0)qi--;else step=N_;}else if(step===N_+2){step=N_+1;qi=Q-1;}else step=N_+2;render();};
+backBtn.onclick=()=>{if(step<=NCARDS)step--;else if(step===PAGE.quiz){if(qi>0)qi--;else step=NCARDS;}else if(step===PAGE.name){step=PAGE.quiz;qi=NQUIZ-1;}else step=PAGE.name;render();};
 
 const startHTML=()=>`<section class="card"><div class="scene">${S.job}</div><h1>Dash Cam Drive Guide</h1>
-    <p class="lead">The rules for every dash cam survey drive. Read ${N_} short cards, then answer ${Q} quick questions.</p>
+    <p class="lead">The rules for every dash cam survey drive. Read ${NCARDS} short cards, then answer ${NQUIZ} quick questions.</p>
     <div class="eyebrow">The four things that matter most</div>${keyList(true)}
     <p class="note">Your supervisor gives you the details for your job. If your supervisor tells you something different, follow your supervisor.</p></section>
   <div class="nav"><button class="primary" id="go" data-focus>Start</button></div>`;
@@ -520,13 +561,13 @@ function renderStart(){
 }
 const PLUG_L={power:['Step 1: plug the cameras into the adapter','Step 2: plug the adapter into the car','Unplug the adapter from the car'],
   between:[null,'Next session soon: plug the adapter in again','Session finished: pull the adapter out']};
-function cardHTML(n){          // n = card number, 1..N_. Also used for the neighbour page while swiping.
-  const c=CARDS[n-1],last=n===N_,s0=c.plug==='power'?0:2;
+function cardHTML(n){          // n = card number, 1..NCARDS. Also used for the neighbour page while swiping.
+  const c=CARDS[n-1],last=n===NCARDS,s0=c.plug==='power'?0:2;
   const nextLabel=!last?'Next':allCorrect()?'Back to the finish':quizStarted?'Back to the quiz':'Start the quiz';
   const plugUI=c.plug?`<ol class="steps" aria-hidden="true">${c.plug==='power'?'<li id="st1">1 · Cameras → adapter</li><li id="st2">2 · Adapter → car</li>':'<li id="st1" class="done">Recording</li><li id="st2">Stopped</li>'}</ol><button class="tap" id="plugBtn" type="button">${PLUG_L[c.plug][s0]}</button>`:'';
   const chooseUI=c.choose?'<div class="seg" role="group" aria-label="Choose your start point"><span>Where do you start?</span><button type="button" data-s="A" aria-pressed="true">A</button><button type="button" data-s="B" aria-pressed="false">B</button></div>':'';
   return `<section class="card"><div class="stage">${c.g+1} · ${STAGES[c.g]}</div><h1 tabindex="-1" data-focus>${c.t}</h1>
-    <div class="scene" id="sc" ${c.plug?`data-s="${s0}"`:''} ${c.choose?'data-start="A"':''}>${c.s}</div>${plugUI}${chooseUI}
+    <div class="scene" id="sc" ${c.plug?`data-s="${s0}"`:''} ${c.choose?'data-start="A"':''}>${S[c.pic]}</div>${plugUI}${chooseUI}
     ${c.lead?`<p class="lead">${c.lead}</p>`:''}${c.keys?keyList(false):`<ul class="pts">${c.pts.map(p=>`<li>${p}</li>`).join('')}</ul>`}</section>
   <div class="nav"><button class="primary" id="next">${nextLabel}</button></div>`;
 }
@@ -543,11 +584,11 @@ function renderCard(){
     b.onclick=nx;sc.querySelector('svg').addEventListener('click',nx);set(+sc.dataset.s);
   }
   if(c.choose) view.querySelectorAll('.seg button').forEach(b=>b.onclick=()=>{sc.dataset.start=b.dataset.s;view.querySelectorAll('.seg button').forEach(x=>x.setAttribute('aria-pressed',x===b));});
-  document.getElementById('next').onclick=()=>{step++;if(step===N_+1){quizStarted=true;if(allCorrect())step=name?N_+3:N_+2;}render();};
+  document.getElementById('next').onclick=()=>{step++;if(step===PAGE.quiz){quizStarted=true;if(allCorrect())step=name?PAGE.done:PAGE.name;}render();};
 }
 function renderQuiz(){
   const q=QUIZ[qi];
-  paint(`<section class="card"><div class="qhead"><div class="stage">Question ${qi+1} of ${Q}</div><button class="reset" id="reset" type="button">Reset</button></div>
+  paint(`<section class="card"><div class="qhead"><div class="stage">Question ${qi+1} of ${NQUIZ}</div><button class="reset" id="reset" type="button">Reset</button></div>
     <h1 class="q" tabindex="-1" data-focus>${q.q}</h1><div class="scene">${QS[qi]}</div>
     <p class="note" id="howto">Tap an answer, then tap Check answer.</p>
     <div class="opts" role="radiogroup" aria-labelledby="howto">${q.o.map((t,k)=>`<button class="opt" type="button" role="radio" data-k="${k}">${t}</button>`).join('')}</div><div id="fb" role="status" aria-live="polite"></div></section>
@@ -561,22 +602,22 @@ function renderQuiz(){
   }
   view.querySelectorAll('.opt').forEach(b=>b.onclick=()=>{if(sub[qi])return;sel[qi]=+b.dataset.k;update();});
   nx.onclick=()=>{if(!sub[qi]){if(sel[qi]===null)return;sub[qi]=true;ok[qi]=sel[qi]===q.a;update();nx.focus();return;}
-    const t=nextTarget(qi);if(t===-1){step=N_+2;render();return;}qi=t;if(sub[qi]&&!ok[qi]){sub[qi]=false;sel[qi]=null;}render();};
+    const t=nextTarget(qi);if(t===-1){step=PAGE.name;render();return;}qi=t;if(sub[qi]&&!ok[qi]){sub[qi]=false;sel[qi]=null;}render();};
   resetBtn.onclick=()=>{sel[qi]=null;sub[qi]=false;ok[qi]=false;update();};
   update();
 }
 function renderName(){
-  paint(`<section class="card"><div class="stage">All ${Q} questions right</div><h1>Well done</h1><p class="lead">Type your full name to finish.</p>
+  paint(`<section class="card"><div class="stage">All ${NQUIZ} questions right</div><h1>Well done</h1><p class="lead">Type your full name to finish.</p>
     <form id="nf" style="display:flex;flex-direction:column;gap:8px"><label for="nm">Your full name</label><input type="text" id="nm" autocomplete="name" required data-focus>
     <button class="primary" type="submit">I have read and understood the rules</button></form></section>`);
   document.getElementById('nm').value=name;
-  document.getElementById('nf').addEventListener('submit',e=>{e.preventDefault();const v=document.getElementById('nm').value.trim();if(!v)return;name=v;step=N_+3;render();});
+  document.getElementById('nf').addEventListener('submit',e=>{e.preventDefault();const v=document.getElementById('nm').value.trim();if(!v)return;name=v;step=PAGE.done;render();});
 }
 function renderDone(){
   const when=new Date().toLocaleString('en-AU',{weekday:'short',day:'numeric',month:'short',year:'numeric',hour:'numeric',minute:'2-digit'});
-  paint(`<section class="card"><div class="cert"><svg viewBox="0 0 56 56" aria-hidden="true">${C(28,28,26,SG)}<path d="M16 29 L25 38 L41 20" fill="none" stroke="${W}" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+  paint(`<section class="card"><div class="cert"><svg viewBox="0 0 56 56" aria-hidden="true">${circle(28,28,26,SAGE)}<path d="M16 29 L25 38 L41 20" fill="none" stroke="${WHITE}" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/></svg>
     <div class="eyebrow">Dash Cam Drive Guide · completed</div><div class="who" id="who" tabindex="-1" data-focus></div>
-    <div>has read the rules and answered all ${Q} questions correctly.</div><div class="when">${when}</div></div>
+    <div>has read the rules and answered all ${NQUIZ} questions correctly.</div><div class="when">${when}</div></div>
     <p class="lead"><strong>Take a screenshot of this card and send it to your supervisor.</strong></p><p class="note">This page does not send anything by itself.</p></section>`);
   document.getElementById('who').textContent=name;
 }
@@ -588,7 +629,7 @@ let shown=-1,fromHistory=false;
 function remember(){
   if(fromHistory)return;
   const st={guide:'dashcam',step,qi},h=history.state;
-  if(h&&h.guide==='dashcam'&&h.step===step&&(step!==N_+1||h.qi===qi))return;   // same page: no new entry
+  if(h&&h.guide==='dashcam'&&h.step===step&&(step!==PAGE.quiz||h.qi===qi))return;   // same page: no new entry
   try{
     if(shown<0||(dotDrag&&dotDrag.scrub&&dotDrag.pushed))history.replaceState(st,'');
     else{history.pushState(st,'');if(dotDrag&&dotDrag.scrub)dotDrag.pushed=true;}
@@ -598,22 +639,22 @@ addEventListener('popstate',e=>{
   const st=e.state;if(!st||st.guide!=='dashcam')return;
   stopPageHint();if(sw)swEnd(false);
   let to=st.step;
-  if(to>N_&&!quizStarted)to=N_;                       // quiz state is not kept across a reload
-  if(to===N_+1&&typeof st.qi==='number')qi=st.qi;
-  if(to===N_+2&&!allCorrect())to=N_+1;
-  if(to===N_+3&&!name)to=allCorrect()?N_+2:N_+1;
+  if(to>NCARDS&&!quizStarted)to=NCARDS;                       // quiz state is not kept across a reload
+  if(to===PAGE.quiz&&typeof st.qi==='number')qi=st.qi;
+  if(to===PAGE.name&&!allCorrect())to=PAGE.quiz;
+  if(to===PAGE.done&&!name)to=allCorrect()?PAGE.name:PAGE.quiz;
   step=to;fromHistory=true;try{render();}finally{fromHistory=false;}
 });
 function render(quiet,keep){   // keep = stay at the same scroll height (after a swipe)
   remember();
   const was=shown; shown=step; view.classList.remove('inR','inL');
-  if(step>=1&&step<=N_&&!(dotDrag&&dotDrag.scrub))seen[step]=true;   // cards only passed while dragging the strip are not marked
-  if(step===0)renderStart();else if(step<=N_)renderCard();else if(step===N_+1)renderQuiz();else if(step===N_+2)renderName();else renderDone();
+  if(isCard(step)&&!(dotDrag&&dotDrag.scrub))seen[step]=true;   // cards only passed while dragging the strip are not marked
+  if(step===0)renderStart();else if(step<=NCARDS)renderCard();else if(step===PAGE.quiz)renderQuiz();else if(step===PAGE.name)renderName();else renderDone();
   if(!keep)window.scrollTo({top:0});
   // slide in from the side the page came from. Start page and cards only: the quiz stays still.
-  if(!quiet&&was>=0&&was!==step&&was<=N_&&step<=N_){void view.offsetWidth;view.classList.add(step>was?'inR':'inL');}
+  if(!quiet&&was>=0&&was!==step&&was<=NCARDS&&step<=NCARDS){void view.offsetWidth;view.classList.add(step>was?'inR':'inL');}
   stopPageHint();
-  if(TOUCH&&!pageHintDone&&step<=N_)pageHint();   // start page or a card, whichever opens first
+  if(TOUCH&&!pageHintDone&&step<=NCARDS)pageHint();   // start page or a card, whichever opens first
 }
 
 /* ---------- swipe the page left / right to change card (touch only; up / down still scrolls).
@@ -629,7 +670,7 @@ function swMove(dx,anim){
   if(!peek.hidden)peek.style.transform=`translateX(${dx+(sw.dir<0?1:-1)*(view.offsetWidth+PGAP)}px)`;
 }
 function swPeek(dir){                    // dir -1 = finger moves left = next page
-  const to=dir<0?(step<N_?step+1:null):(step>0?step-1:null);   // last card: no swipe into the quiz, use the button
+  const to=dir<0?(step<NCARDS?step+1:null):(step>0?step-1:null);   // last card: no swipe into the quiz, use the button
   sw.dir=dir;sw.to=to;
   if(to===null){peek.hidden=true;peek.innerHTML='';return;}
   peek.innerHTML=pageHTML(to);peek.hidden=false;
@@ -647,7 +688,7 @@ function swEnd(done){
 }
 document.getElementById('pager').addEventListener('touchstart',e=>{
   if(sw&&sw.drag)return;
-  sw=(step<=N_&&e.touches.length===1)?{x:e.touches[0].clientX,y:e.touches[0].clientY,lx:e.touches[0].clientX,lt:Date.now(),v:0,drag:false,dir:0,to:null,from:step}:null;
+  sw=(step<=NCARDS&&e.touches.length===1)?{x:e.touches[0].clientX,y:e.touches[0].clientY,lx:e.touches[0].clientX,lt:Date.now(),v:0,drag:false,dir:0,to:null,from:step}:null;
 },{passive:true});
 document.getElementById('pager').addEventListener('touchmove',e=>{
   if(!sw||e.touches.length!==1)return;
@@ -682,8 +723,8 @@ function openCard(n,quiet){      // n = card number, or QUIZ_DOT
   if(n===null)return;
   let to=n;
   if(n===QUIZ_DOT){              // back to where the driver left the quiz: the same question, the name page or the finish page
-    if(!quizStarted||step>N_)return;
-    to=allCorrect()?(name?N_+3:N_+2):N_+1;
+    if(!quizStarted||step>NCARDS)return;
+    to=allCorrect()?(name?PAGE.done:PAGE.name):PAGE.quiz;
   }else if(n===step)return;
   if(sw)swEnd(false);step=to;render(quiet);
 }
@@ -705,10 +746,10 @@ routeEl.addEventListener('pointermove',e=>{
 routeEl.addEventListener('pointerup',e=>{
   if(!dotDrag||e.pointerId!==dotDrag.id)return;
   const s=dotDrag;dotDrag=null;
-  if(s.scrub){if(step>=1&&step<=N_){seen[step]=true;progress();}}
+  if(s.scrub){if(isCard(step)){seen[step]=true;progress();}}
   else openCard(nearestDot(e.clientX),false);
 });
-routeEl.addEventListener('pointercancel',()=>{dotDrag=null;if(step>=1&&step<=N_){seen[step]=true;progress();}});
+routeEl.addEventListener('pointercancel',()=>{dotDrag=null;if(isCard(step)){seen[step]=true;progress();}});
 // The tap above already opened the card and scrolled to the top. Cancel the browser's follow-up click, or it can land
 // on whatever is now under the finger (the Back button) and go one page back.
 routeEl.addEventListener('touchend',e=>{if(e.cancelable)e.preventDefault();},{passive:false});
@@ -719,8 +760,12 @@ DOTS.forEach(d=>d.addEventListener('click',e=>{if(e.detail===0)openCard(+d.datas
    A hand drags the page sideways, the next card comes in beside it, then the page springs back. Any touch stops it. ---------- */
 const TOUCH=matchMedia('(pointer: coarse)').matches;
 let pageHintDone=false,phT=0,phRaf=0;
+/* SHARED:swipe-hand */
+// the thumb of the page swipe hint (GUIDE-PRINCIPLES.md 6)
+const SWIPE_HAND = '<span class="phand"><svg viewBox="-22 -4 58 64"><g transform="rotate(-16 16 58)"><path class="co" d="M16 0 C25 0 30 7 30 16 L30.5 32 C31 38 30 46 29 60 L5 60 C3.5 46 2 38 2.4 32 L2 16 C2 7 7 0 16 0Z"/><path class="cf" d="M16 2.2 C23.6 2.2 27.8 8 27.8 16 L28.3 32 C28.7 38 27.8 46 26.8 60 L7.2 60 C6 46 4.4 38 4.6 32 L4.2 16 C4.2 8 8.4 2.2 16 2.2Z"/><path class="cn" d="M16 5.5 C21.5 5.5 23.6 9 23.6 13.5 L23.4 19 C23.3 21 21.6 22.2 19.6 22.2 L12.4 22.2 C10.4 22.2 8.7 21 8.6 19 L8.4 13.5 C8.4 9 10.5 5.5 16 5.5Z"/><path class="cl" d="M9 34.2 Q16 31.6 23.6 34.2 L23.6 35.8 Q16 33.4 9 35.8Z"/></g></svg></span>';
+/* /SHARED:swipe-hand */
 const PH=document.createElement('div');PH.className='phint';PH.setAttribute('aria-hidden','true');
-PH.innerHTML='<span class="phcap">Swipe to change card</span><span class="phand"><svg viewBox="-22 -4 58 64"><g transform="rotate(-16 16 58)"><path class="co" d="M16 0 C25 0 30 7 30 16 L30.5 32 C31 38 30 46 29 60 L5 60 C3.5 46 2 38 2.4 32 L2 16 C2 7 7 0 16 0Z"/><path class="cf" d="M16 2.2 C23.6 2.2 27.8 8 27.8 16 L28.3 32 C28.7 38 27.8 46 26.8 60 L7.2 60 C6 46 4.4 38 4.6 32 L4.2 16 C4.2 8 8.4 2.2 16 2.2Z"/><path class="cn" d="M16 5.5 C21.5 5.5 23.6 9 23.6 13.5 L23.4 19 C23.3 21 21.6 22.2 19.6 22.2 L12.4 22.2 C10.4 22.2 8.7 21 8.6 19 L8.4 13.5 C8.4 9 10.5 5.5 16 5.5Z"/><path class="cl" d="M9 34.2 Q16 31.6 23.6 34.2 L23.6 35.8 Q16 33.4 9 35.8Z"/></g></svg></span>';
+PH.innerHTML = '<span class="phcap">Swipe to change card</span>' + SWIPE_HAND;
 document.body.appendChild(PH);
 function stopPageHint(){
   clearTimeout(phT);cancelAnimationFrame(phRaf);phT=phRaf=0;PH.classList.remove('on','press');PH.style.opacity='';
@@ -730,7 +775,7 @@ function pageHint(){
   pageHintDone=true;
   phT=setTimeout(()=>{
     phT=0;
-    const dir=step<N_?-1:1;
+    const dir=step<NCARDS?-1:1;
     sw={drag:true,hint:true,dir:0,to:null,from:step};swPeek(dir);if(sw.to===null){stopPageHint();return;}
     const W=view.offsetWidth,D=dir*Math.min(W*.42,170),x0=innerWidth*(dir<0?.7:.3),y=innerHeight*.58;
     const ease=t=>t<.5?2*t*t:1-Math.pow(-2*t+2,2)/2, seg=(p,a,b)=>p<=a?0:p>=b?1:ease((p-a)/(b-a));
@@ -755,8 +800,8 @@ window.addEventListener('touchstart',()=>{if(phT||phRaf)stopPageHint();},{captur
 /* ---------- keyboard: left / right arrows change card, like a swipe (start page and cards only) ---------- */
 document.addEventListener('keydown',e=>{
   if(e.altKey||e.ctrlKey||e.metaKey||e.shiftKey||(e.key!=='ArrowRight'&&e.key!=='ArrowLeft'))return;
-  if(step>N_||/^(INPUT|TEXTAREA|SELECT)$/.test((document.activeElement||{}).tagName||''))return;
-  const to=e.key==='ArrowRight'?(step<N_?step+1:null):(step>0?step-1:null);
+  if(step>NCARDS||/^(INPUT|TEXTAREA|SELECT)$/.test((document.activeElement||{}).tagName||''))return;
+  const to=e.key==='ArrowRight'?(step<NCARDS?step+1:null):(step>0?step-1:null);
   if(to===null)return;
   e.preventDefault();if(sw)swEnd(false);step=to;render();
 });
@@ -764,6 +809,7 @@ document.addEventListener('keydown',e=>{
 render();
 })();
 
+/* SHARED:textsize-js */
 /* ---------- text size (shared by all guides): "Aa" opens A− / four dots / A+.
    The whole page text scales by --fs; the line the reader is on stays where it is on screen.
    Not remembered (no browser storage): each visit starts at 100 %. ---------- */
@@ -801,6 +847,7 @@ render();
   document.addEventListener('keydown', e => { if (e.key === 'Escape' && !panel.hidden) { open(false); btn.focus({preventScroll: true}); } });
   setSize(1, false);
 })();
+/* /SHARED:textsize-js */
 </script>
 
 </body>

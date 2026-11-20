@@ -79,7 +79,8 @@ Name: **flat geometric transit poster**. Think of a modern public transport safe
 - A soft dark ellipse under objects that stand on the ground (cars, cones) to seat them.
 - Simple background: sky block, one or two hill shapes, ground. Never detailed scenery.
 - **No people and no faces.** Hands and bodies are not drawn; actions are shown by the object moving.
-- All pictures are inline SVG produced by helper functions in the script (`R`, `C`, `T`, `svg`, `arc`, `carSym`, `cabin`, `cams`, `wiring`, `outside`, `check`, `no`, …). **Reuse these helpers.** Do not add image files, icon fonts or libraries.
+- All pictures are inline SVG produced by helper functions in the script (`rect`, `circle`, `text`, `svg`, `arc`, `carSym`, `cabin`, `cams`, `wiring`, `outside`, `check`, `no`, …).
+  Classes used inside pictures for their animations have specific names (`plug-on`, `plug-off`, `plug-lead`, `clock-hand`, `lane`, …), never generic page words like `on` or `lead`. **Reuse these helpers.** Do not add image files, icon fonts or libraries.
 - Card pictures use `viewBox="0 0 360 220"`; quiz pictures are shorter (170, or 196 for cabin views).
 
 ### 4.1 Palette (fixed)
@@ -88,17 +89,17 @@ Illustration constants (in the script):
 
 | Name | Hex | Use |
 |---|---|---|
-| `N` navy | `#141B3C` | Brand colour. Cameras, cabin frame, road, structure |
-| `N2` / `N3` / `NK` | `#33407A` / `#232B52` / `#0A0E22` | Navy shades, shadows |
-| `CR` cream / `W` white | `#F3EBDD` / `#FFFDF8` | Light surfaces, text on navy |
-| `AM` amber / `AM2` | `#F2A93B` / `#DB932A` | **Action and progress** |
-| `CO` coral / `CO2` | `#E4572E` / `#C4441F` | **Attention and prohibition** |
-| `SG` sage | `#5E8F88` | **Correct, done, OK** |
-| `SK` / `SK2` / `MT` | `#DCE9E8` / `#C9DBD8` / `#B9CFCB` | Sky, far hills |
-| `SD` / `SD2` / `SD3` | `#D8C9AE` / `#C4B393` / `#BCA988` | Sand: ground, dashboard |
-| `GY` | `#B8BCC8` | Neutral grey: other cars, metal |
+| `NAVY` | `#141B3C` | Brand colour. Cameras, cabin frame, road, structure |
+| `NAVY_2` / `NAVY_3` / `NAVY_DARK` | `#33407A` / `#232B52` / `#0A0E22` | Navy shades, shadows |
+| `CREAM` / `WHITE` | `#F3EBDD` / `#FFFDF8` | Light surfaces, text on navy |
+| `AMBER` / `AMBER_DARK` | `#F2A93B` / `#DB932A` | **Action and progress** |
+| `CORAL` / `CORAL_DARK` | `#E4572E` / `#C4441F` | **Attention and prohibition** |
+| `SAGE` | `#5E8F88` | **Correct, done, OK** |
+| `SKY` / `SKY_2` / `MIST` | `#DCE9E8` / `#C9DBD8` / `#B9CFCB` | Sky, far hills |
+| `SAND` / `SAND_2` / `SAND_3` | `#D8C9AE` / `#C4B393` / `#BCA988` | Sand: ground, dashboard |
+| `GREY` | `#B8BCC8` | Neutral grey: other cars, metal |
 
-Page tokens (CSS variables on `:root`):
+Page tokens (CSS variables on `:root`; the shared block `tokens`, GUIDE-PRINCIPLES.md 4.2):
 
 | Token | Light | Dark |
 |---|---|---|
@@ -111,6 +112,11 @@ Page tokens (CSS variables on `:root`):
 | `--amber` | `#F2A93B` | `#F2A93B` |
 | `--coral` | `#D94A22` | `#FF7A52` |
 | `--sage` | `#5E8F88` | `#7DB3AB` |
+| `--tint` | `#EFE7D7` | `#1F2647` |
+
+This guide's own tokens, after the shared block: `--scene-bg` (picture background, cream in both modes),
+`--scene-edge` (picture edge, only at night), `--amber-soft` (selected quiz answer) and `--amber-halo` (ring around
+the current progress dot).
 
 Do not add colours. If something needs to stand out, use the meaning table below.
 
@@ -338,13 +344,17 @@ Do not reorder them, reword them, or add a fifth without the owner's decision.
 
 ## 12. Technical rules
 
-- Keep everything in **one self-contained `index.html`**: `<style>`, markup, one `<script>` (an IIFE).
-- Data lives in arrays in the script:
-  - `CARDS` — `{g, t, s, lead, pts, plug?, choose?, keys?}`: `g` is the stage index, `t` the title, `s` the scene key in `S`, `pts` the bullets.
+- Keep everything in **one self-contained `index.html`**: `<style>`, markup, one `<script>`.
+- **The script, top to bottom:** content (the text of the guide), the picture palette and drawing helpers, card
+  pictures `S`, quiz pictures `QS`, then the page logic. Code shared with the other guides sits between
+  `SHARED:` markers (GUIDE-PRINCIPLES.md 7); change it as described there.
+- Content, at the top of the script (change the guide's text here):
+  - `CARDS` — `{g, t, pic, lead, pts, plug?, choose?, keys?}`: `g` is the stage index, `t` the title, `pic` the picture name in `S`, `pts` the bullets.
   - `QUIZ` — `{q, o, a, why}`: question, options, index of the right answer, one-line reason.
-  - `QS` — one picture per quiz question, same order as `QUIZ`.
-  - `S` — scene functions, one per card picture.
   - `STAGES`, `LEGS`, `KEYS` — stage names, progress labels, the four key points.
+- Pictures: `S` (card pictures, by name) and `QS` (one per quiz question, same order as `QUIZ`).
+- Pages are numbered: 0 = start, 1 to `NCARDS` = the cards, then `PAGE.quiz`, `PAGE.name`, `PAGE.done`.
+  `isCard(n)` says whether page `n` is a card. Use these names, never `NCARDS+1` and so on.
 - No `localStorage` is needed. No network calls. No analytics.
 - Every `<svg>` picture has `role="img"` and an `aria-label` describing it.
 - The page is served by GitHub Pages from the `main` branch root.
@@ -354,7 +364,7 @@ Do not reorder them, reword them, or add a fifth without the owner's decision.
 1. Decide the stage (`g`) and the position in the day's order.
 2. Write title, lead and up to 3 bullets following section 2.
 3. Choose the viewpoint from 5.1. Build the picture from existing helpers and the palette. One small explaining animation (section 7).
-4. Add the scene function to `S` and the card to `CARDS`.
+4. Add the picture to `S` under a name, and the card to `CARDS` with `pic:'that name'`.
 5. Update the "About N minutes" label and the card/question counts in `README.md` if they change.
 
 ### How to add a quiz question
