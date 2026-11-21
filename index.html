@@ -608,10 +608,10 @@ function renderQuiz(){
 }
 function renderName(){
   paint(`<section class="card"><div class="stage">All ${NQUIZ} questions right</div><h1>Well done</h1><p class="lead">Type your full name to finish.</p>
-    <form id="nf" style="display:flex;flex-direction:column;gap:8px"><label for="nm">Your full name</label><input type="text" id="nm" autocomplete="name" required data-focus>
+    <form id="nf" style="display:flex;flex-direction:column;gap:8px"><label for="nm">Your full name</label><input type="text" id="nm" autocomplete="name" maxlength="70" required data-focus>
     <button class="primary" type="submit">I have read and understood the rules</button></form></section>`);
   document.getElementById('nm').value=name;
-  document.getElementById('nf').addEventListener('submit',e=>{e.preventDefault();const v=document.getElementById('nm').value.trim();if(!v)return;name=v;step=PAGE.done;render();});
+  document.getElementById('nf').addEventListener('submit',e=>{e.preventDefault();const v=document.getElementById('nm').value.trim().slice(0,70);if(!v)return;name=v;step=PAGE.done;render();});
 }
 function renderDone(){
   const when=new Date().toLocaleString('en-AU',{weekday:'short',day:'numeric',month:'short',year:'numeric',hour:'numeric',minute:'2-digit'});

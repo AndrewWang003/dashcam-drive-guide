@@ -323,6 +323,7 @@ Do not reorder them, reword them, or add a fifth without the owner's decision.
 - **Between sessions** card: one button toggles recording / stopped.
 - **Finish where you started** card: A / B chooser.
 - Completion card: the driver's name with date and time, inside an amber border — made for a screenshot.
+- **Name: at most 70 characters** (`maxlength`, and cut to 70 in the script too). Long enough for nearly every full name, including several given names or family names; 20 would be too short. Without a limit, a very long entry made the completion card many screens tall. The name is shown with `textContent` only, never as HTML, so nothing typed can run as code.
 
 ---
 
