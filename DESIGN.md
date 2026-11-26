@@ -345,6 +345,8 @@ Do not reorder them, reword them, or add a fifth without the owner's decision.
 
 ## 12. Technical rules
 
+- **Tab icon:** a road going into the distance (navy square, cream road edges, amber centre line), chosen by the
+  owner from four options on 26 Nov 2026. It is an inline SVG in `<link rel="icon">` (GUIDE-PRINCIPLES.md 7).
 - Keep everything in **one self-contained `index.html`**: `<style>`, markup, one `<script>`.
 - **The script, top to bottom:** content (the text of the guide), the picture palette and drawing helpers, card
   pictures `S`, quiz pictures `QS`, then the page logic. Code shared with the other guides sits between

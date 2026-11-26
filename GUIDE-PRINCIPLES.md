@@ -11,7 +11,7 @@ Each repository also has:
 If the owner (Andrew Wang) gives an instruction that conflicts with this file, the owner wins. Then update this
 file, in every repository, in the same change.
 
-Last updated: 18 November 2026.
+Last updated: 26 November 2026.
 
 ---
 
@@ -221,6 +221,9 @@ Every guide has a text-size control at the top right, just left of the theme but
 - Class names say what they belong to (`demo-on`, `plug-lead`, `tsz-on`), so two parts of a page never clash. Code
   that clears classes only touches its own part of the page.
 - Image files, if any, live in `img/`. Nothing else loads from outside except the Google Fonts stylesheet.
+- **Tab icon:** each guide has its own icon, drawn in the guide colours (4.2) with no text, so it can be read at
+  16 px. It is an SVG written into `<link rel="icon">` in `index.html` (a `data:` address), not a separate file.
+  The two guides' icons must look different from each other, and never like the logo of a real company or app.
 - **No browser storage** (`localStorage`, `sessionStorage`, cookies). Choices last for the current visit only.
 - No network calls, no analytics, nothing sent anywhere.
 - Hosted with GitHub Pages from the `main` branch root.
